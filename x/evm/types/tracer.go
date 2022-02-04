@@ -1,6 +1,7 @@
 package types
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/big"
 	"os"
@@ -9,6 +10,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/ethereum/go-ethereum/eth/tracers"
+	"github.com/ethereum/go-ethereum/eth/tracers/logger"
 	"github.com/ethereum/go-ethereum/params"
 )
 
@@ -21,22 +24,22 @@ const (
 
 // NewTracer creates a new Logger tracer to collect execution traces from an
 // EVM transaction.
-func NewTracer(tracer string, msg core.Message, cfg *params.ChainConfig, height int64) vm.Tracer {
+func NewTracer(tracer string, msg core.Message, cfg *params.ChainConfig, height int64) vm.EVMLogger {
 	// TODO: enable additional log configuration
-	logCfg := &vm.LogConfig{
+	logCfg := &logger.Config{
 		Debug: true,
 	}
 
 	switch tracer {
 	case TracerAccessList:
-		precompiles := vm.ActivePrecompiles(cfg.Rules(big.NewInt(height)))
-		return vm.NewAccessListTracer(msg.AccessList(), msg.From(), *msg.To(), precompiles)
+		precompiles := vm.ActivePrecompiles(cfg.Rules(big.NewInt(height), false))
+		return logger.NewAccessListTracer(msg.AccessList(), msg.From(), *msg.To(), precompiles)
 	case TracerJSON:
-		return vm.NewJSONLogger(logCfg, os.Stderr)
+		return logger.NewJSONLogger(logCfg, os.Stderr)
 	case TracerMarkdown:
-		return vm.NewMarkdownLogger(logCfg, os.Stdout) // TODO: Stderr ?
+		return logger.NewMarkdownLogger(logCfg, os.Stdout) // TODO: Stderr ?
 	case TracerStruct:
-		return vm.NewStructLogger(logCfg)
+		return logger.NewStructLogger(logCfg)
 	default:
 		return NewNoOpTracer()
 	}
@@ -79,7 +82,7 @@ type StructLogRes struct {
 }
 
 // FormatLogs formats EVM returned structured logs for json output
-func FormatLogs(logs []vm.StructLog) []StructLogRes {
+func FormatLogs(logs []logger.StructLog) []StructLogRes {
 	formatted := make([]StructLogRes, len(logs))
 	for index, trace := range logs {
 		formatted[index] = StructLogRes{
@@ -123,17 +126,17 @@ func FormatLogs(logs []vm.StructLog) []StructLogRes {
 	return formatted
 }
 
-var _ vm.Tracer = &NoOpTracer{}
+var _ tracers.Tracer = &NoOpTracer{}
 
-// NoOpTracer is an empty implementation of vm.Tracer interface
+// NoOpTracer is an empty implementation of tracers.Tracer interface
 type NoOpTracer struct{}
 
-// NewNoOpTracer creates a no-op vm.Tracer
+// NewNoOpTracer creates a no-op tracers.Tracer
 func NewNoOpTracer() *NoOpTracer {
 	return &NoOpTracer{}
 }
 
-// CaptureStart implements vm.Tracer interface
+// CaptureStart implements tracers.Tracer interface
 func (dt NoOpTracer) CaptureStart(
 	env *vm.EVM,
 	from, to common.Address,
@@ -144,7 +147,7 @@ func (dt NoOpTracer) CaptureStart(
 ) {
 }
 
-// CaptureEnter implements vm.Tracer interface
+// CaptureEnter implements tracers.Tracer interface
 func (dt NoOpTracer) CaptureEnter(
 	typ vm.OpCode,
 	from common.Address,
@@ -155,12 +158,11 @@ func (dt NoOpTracer) CaptureEnter(
 ) {
 }
 
-// CaptureExit implements vm.Tracer interface
+// CaptureExit implements tracers.Tracer interface
 func (dt NoOpTracer) CaptureExit(output []byte, gasUsed uint64, err error) {}
 
-// CaptureState implements vm.Tracer interface
+// CaptureState implements tracers.Tracer interface
 func (dt NoOpTracer) CaptureState(
-	env *vm.EVM,
 	pc uint64,
 	op vm.OpCode,
 	gas, cost uint64,
@@ -171,9 +173,8 @@ func (dt NoOpTracer) CaptureState(
 ) {
 }
 
-// CaptureFault implements vm.Tracer interface
+// CaptureFault implements tracers.Tracer interface
 func (dt NoOpTracer) CaptureFault(
-	env *vm.EVM,
 	pc uint64,
 	op vm.OpCode,
 	gas, cost uint64,
@@ -183,11 +184,25 @@ func (dt NoOpTracer) CaptureFault(
 ) {
 }
 
-// CaptureEnd implements vm.Tracer interface
+// CaptureEnd implements tracers.Tracer interface
 func (dt NoOpTracer) CaptureEnd(
 	output []byte,
 	gasUsed uint64,
 	t time.Duration,
+	err error,
+) {
+}
+
+// GetResult implements tracers.Tracer interface
+func (dt NoOpTracer) GetResult() (
+	r json.RawMessage,
+	err error,
+) {
+	return json.RawMessage(`{}`), nil
+}
+
+// Stop implements tracers.Tracer interface
+func (dt NoOpTracer) Stop(
 	err error,
 ) {
 }
