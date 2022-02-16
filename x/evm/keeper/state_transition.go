@@ -14,6 +14,7 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 	"github.com/tharsis/ethermint/x/evm/statedb"
 	"github.com/tharsis/ethermint/x/evm/types"
+	extendedVM "github.com/tharsis/ethermint/x/evm/vm"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
@@ -93,7 +94,14 @@ func (k *Keeper) NewEVM(
 		tracer = k.Tracer(ctx, msg, cfg.ChainConfig)
 	}
 	vmConfig := k.VMConfig(ctx, msg, cfg, tracer)
-	return vm.NewEVM(blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig)
+
+	precompiles := vm.GetPrecompiles(cfg.ChainConfig.Rules(blockCtx.BlockNumber))
+
+	for k, v := range extendedVM.PrecompiledContracts {
+		precompiles[k] = v
+	}
+
+	return vm.NewEVM(blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig, precompiles)
 }
 
 // VMConfig creates an EVM configuration from the debug setting and the extra EIPs enabled on the
