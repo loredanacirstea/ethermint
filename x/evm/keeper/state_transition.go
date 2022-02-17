@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"math"
 	"math/big"
 
@@ -97,9 +98,13 @@ func (k *Keeper) NewEVM(
 
 	precompiles := vm.GetPrecompiles(cfg.ChainConfig.Rules(blockCtx.BlockNumber))
 
-	for k, v := range extendedVM.PrecompiledContracts {
+	// PrecompiledContracts (ctx, keeper)
+	// ibcKeeper ?
+	for k, v := range extendedVM.GetPrecompiles(ctx, k.vmIbcKeeper) {
 		precompiles[k] = v
 	}
+
+	fmt.Println("------ethermint NewEVM", precompiles)
 
 	return vm.NewEVM(blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig, precompiles)
 }
