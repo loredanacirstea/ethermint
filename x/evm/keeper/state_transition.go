@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"math"
 	"math/big"
 
@@ -14,7 +15,7 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 	"github.com/tharsis/ethermint/x/evm/statedb"
 	"github.com/tharsis/ethermint/x/evm/types"
-	extendedVM "github.com/tharsis/ethermint/x/evm/vm"
+	vmibc "github.com/tharsis/ethermint/x/evm/vm"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
@@ -97,9 +98,13 @@ func (k *Keeper) NewEVM(
 
 	precompiles := vm.GetPrecompiles(cfg.ChainConfig.Rules(blockCtx.BlockNumber))
 
-	for k, v := range extendedVM.PrecompiledContracts {
+	// PrecompiledContracts (ctx, keeper)
+	// ibcKeeper ?
+	for k, v := range vmibc.GetPrecompiles(ctx, k.vmIbcKeeper) {
 		precompiles[k] = v
 	}
+
+	fmt.Println("------ethermint NewEVM", precompiles)
 
 	return vm.NewEVM(blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig, precompiles)
 }

@@ -47,6 +47,10 @@ type FeeMarketKeeper interface {
 	GetParams(ctx sdk.Context) feemarkettypes.Params
 }
 
+// type VmIbcKeeper interface {
+// 	Ics4Wrapper() transfertypes.ICS4Wrapper
+// }
+
 // Event Hooks
 // These can be utilized to customize evm transaction processing.
 

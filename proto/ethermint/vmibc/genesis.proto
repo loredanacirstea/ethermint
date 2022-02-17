@@ -1,0 +1,12 @@
+syntax = "proto3";
+package ethermint.evm.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/tharsis/ethermint/x/evm/vm/types";
+
+// GenesisState defines the evm module's genesis state.
+message GenesisState {
+    // Params params = 1 [(gogoproto.nullable) = false];
+    string port_id = 2;
+}
