@@ -1,4 +1,4 @@
-package extendedVM
+package vmibc
 
 import (
 	"fmt"
@@ -50,6 +50,8 @@ func (c *ibcPrecompile) Run(evm *vm.EVM, caller vm.ContractRef, input []byte) ([
 
 	// scopedKeeper cosmosibckeeper.ScopedKeeper,
 	// channelCap := c.vmIbcKeeper.GetCapability(c.ctx, channelCapName)
+
+	// c.vmIbcKeeper.ScopedKeeper().NewCapability(c.ctx, "")
 
 	channelCap, ok := c.vmIbcKeeper.ScopedKeeper().GetCapability(c.ctx, host.ChannelCapabilityPath("chat", "channel-0"))
 	if !ok {

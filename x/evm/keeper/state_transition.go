@@ -15,7 +15,7 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 	"github.com/tharsis/ethermint/x/evm/statedb"
 	"github.com/tharsis/ethermint/x/evm/types"
-	extendedVM "github.com/tharsis/ethermint/x/evm/vm"
+	vmibc "github.com/tharsis/ethermint/x/evm/vm"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
@@ -100,7 +100,7 @@ func (k *Keeper) NewEVM(
 
 	// PrecompiledContracts (ctx, keeper)
 	// ibcKeeper ?
-	for k, v := range extendedVM.GetPrecompiles(ctx, k.vmIbcKeeper) {
+	for k, v := range vmibc.GetPrecompiles(ctx, k.vmIbcKeeper) {
 		precompiles[k] = v
 	}
 
