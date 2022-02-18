@@ -276,6 +276,7 @@ func NewEthermintApp(
 		ibchost.StoreKey, ibctransfertypes.StoreKey,
 		// ethermint keys
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
+		vmibctypes.StoreKey,
 	)
 
 	// Add the EVM transient store key
@@ -359,6 +360,7 @@ func NewEthermintApp(
 		appCodec, keys[vmibctypes.StoreKey], app.GetSubspace(vmibctypes.ModuleName),
 		app.IBCKeeper.ChannelKeeper,
 		app.CapabilityKeeper.ScopeToModule(vmibctypes.ModuleName),
+		&app.IBCKeeper.PortKeeper,
 	)
 
 	app.EvmKeeper = evmkeeper.NewKeeper(
@@ -395,10 +397,12 @@ func NewEthermintApp(
 	)
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 	transferIBCModule := transfer.NewIBCModule(app.TransferKeeper)
+	// transferVmIBCModule := transfer.NewIBCModule(app.VmIbcKeeper)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
 	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferIBCModule)
+	// ibcRouter.AddRoute(vmibctypes.ModuleName, transferVmIBCModule)
 	app.IBCKeeper.SetRouter(ibcRouter)
 
 	// create evidence keeper with router
@@ -444,6 +448,7 @@ func NewEthermintApp(
 		// Ethermint app modules
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
+		// vmibc.NewAppModule(app.VmIbcKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that

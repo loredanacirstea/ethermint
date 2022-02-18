@@ -7,7 +7,9 @@ package types
 // Within this application default genesis information is retrieved from
 // the ModuleBasicManager which populates json from each BasicModule
 // object provided to it during init.
-type GenesisState struct{}
+type GenesisState struct {
+	PortId string
+}
 
 // // NewGenesisState creates a new genesis state.
 // func NewGenesisState(params Params, pairs []TokenPair) GenesisState {
@@ -25,7 +27,22 @@ type GenesisState struct{}
 // 	}
 // }
 
-// Params defines the erc20 module params
 type Params struct {
 	MessageContent []byte `protobuf:"varint,1,opt,name=message_content,json=messageContent,proto3" json:"message_content,omitempty"`
+}
+
+// DefaultIndex is the default capability global index
+const DefaultIndex uint64 = 1
+
+// DefaultGenesis returns the default Capability genesis state
+func DefaultGenesis() *GenesisState {
+	return &GenesisState{
+		PortId: PortID,
+	}
+}
+
+// Validate performs basic genesis state validation returning an error upon any
+// failure.
+func (gs GenesisState) Validate() error {
+	return nil
 }
