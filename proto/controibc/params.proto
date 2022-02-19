@@ -1,0 +1,13 @@
+syntax = "proto3";
+package tharsis.ethermint.controibc;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/tharsis/ethermint/x/controibc/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (gogoproto.goproto_stringer) = false;
+  
+  string portId = 1 [(gogoproto.moretags) = "yaml:\"port_id\""];
+}
