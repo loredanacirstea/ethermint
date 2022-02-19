@@ -3,15 +3,15 @@ package controibc
 import (
 	"math/rand"
 
-	"github.com/tharsis/ethermint/testutil/sample"
-	controibcsimulation "github.com/tharsis/ethermint/x/controibc/simulation"
-	"github.com/tharsis/ethermint/x/controibc/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
+	"github.com/tharsis/ethermint/testutil/sample"
+	controibcsimulation "github.com/tharsis/ethermint/x/controibc/simulation"
+	"github.com/tharsis/ethermint/x/controibc/types"
 )
 
 // avoid unused import issue
@@ -24,7 +24,7 @@ var (
 )
 
 const (
-    // this line is used by starport scaffolding # simapp/module/const
+// this line is used by starport scaffolding # simapp/module/const
 )
 
 // GenerateGenesisState creates a randomized GenState of the module

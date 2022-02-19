@@ -7,7 +7,18 @@ option go_package = "github.com/tharsis/ethermint/x/controibc/types";
 
 // Msg defines the Msg service.
 service Msg {
-    // this line is used by starport scaffolding # proto/tx/rpc
+      rpc SendVmibcMessage(MsgSendVmibcMessage) returns (MsgSendVmibcMessageResponse);
+// this line is used by starport scaffolding # proto/tx/rpc
 }
 
+message MsgSendVmibcMessage {
+  string creator = 1;
+  string port = 2;
+  string channelID = 3;
+  uint64 timeoutTimestamp = 4;
+  string body = 5;
+}
+
+message MsgSendVmibcMessageResponse {
+}
 // this line is used by starport scaffolding # proto/tx/message
