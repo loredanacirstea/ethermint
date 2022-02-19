@@ -16,6 +16,7 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 
 	ethermint "github.com/tharsis/ethermint/types"
+	vmIbc "github.com/tharsis/ethermint/x/controibc/keeper"
 	"github.com/tharsis/ethermint/x/evm/statedb"
 	"github.com/tharsis/ethermint/x/evm/types"
 )
@@ -52,7 +53,8 @@ type Keeper struct {
 	tracer string
 
 	// EVM Hooks for tx post-processing
-	hooks types.EvmHooks
+	hooks       types.EvmHooks
+	vmIbcKeeper vmIbc.Keeper
 }
 
 // NewKeeper generates new evm module keeper
@@ -61,6 +63,7 @@ func NewKeeper(
 	storeKey, transientKey sdk.StoreKey, paramSpace paramtypes.Subspace,
 	ak types.AccountKeeper, bankKeeper types.BankKeeper, sk types.StakingKeeper,
 	fmk types.FeeMarketKeeper,
+	vmIbcKeeper vmIbc.Keeper,
 	tracer string,
 ) *Keeper {
 	// ensure evm module account is set
@@ -81,6 +84,7 @@ func NewKeeper(
 		bankKeeper:      bankKeeper,
 		stakingKeeper:   sk,
 		feeMarketKeeper: fmk,
+		vmIbcKeeper:     vmIbcKeeper,
 		storeKey:        storeKey,
 		transientKey:    transientKey,
 		tracer:          tracer,
