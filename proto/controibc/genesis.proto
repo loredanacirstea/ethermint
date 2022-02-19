@@ -1,0 +1,15 @@
+syntax = "proto3";
+package tharsis.ethermint.controibc;
+
+import "gogoproto/gogo.proto";
+import "controibc/params.proto";
+// this line is used by starport scaffolding # genesis/proto/import
+
+option go_package = "github.com/tharsis/ethermint/x/controibc/types";
+
+// GenesisState defines the controibc module's genesis state.
+message GenesisState {
+  Params params = 1 [(gogoproto.nullable) = false];
+  string port_id = 2;
+  // this line is used by starport scaffolding # genesis/proto/state
+}
