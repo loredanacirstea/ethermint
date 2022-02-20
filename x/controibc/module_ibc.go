@@ -183,6 +183,7 @@ func (am AppModule) OnAcknowledgementPacket(
 	acknowledgement []byte,
 	relayer sdk.AccAddress,
 ) error {
+	fmt.Println("------OnAcknowledgementPacket-----", modulePacket, acknowledgement)
 	var ack channeltypes.Acknowledgement
 	if err := types.ModuleCdc.UnmarshalJSON(acknowledgement, &ack); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet acknowledgement: %v", err)
@@ -245,6 +246,7 @@ func (am AppModule) OnTimeoutPacket(
 	modulePacket channeltypes.Packet,
 	relayer sdk.AccAddress,
 ) error {
+	fmt.Println("------OnTimeoutPacket-----", modulePacket)
 	var modulePacketData types.ControibcPacketData
 	if err := modulePacketData.Unmarshal(modulePacket.GetData()); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: %s", err.Error())
@@ -274,5 +276,6 @@ func (am AppModule) NegotiateAppVersion(
 	counterparty channeltypes.Counterparty,
 	proposedVersion string,
 ) (version string, err error) {
+	fmt.Println("------NegotiateAppVersion-----", connectionID, portID, proposedVersion)
 	return proposedVersion, nil
 }
