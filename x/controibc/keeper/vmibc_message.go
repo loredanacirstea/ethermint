@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"errors"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -20,6 +21,7 @@ func (k Keeper) TransmitVmibcMessagePacket(
 	timeoutHeight clienttypes.Height,
 	timeoutTimestamp uint64,
 ) error {
+	fmt.Println("---TransmitVmibcMessagePacket---", packetData, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp)
 
 	sourceChannelEnd, found := k.ChannelKeeper.GetChannel(ctx, sourcePort, sourceChannel)
 	if !found {
@@ -83,6 +85,7 @@ func (k Keeper) TransmitVmibcMessagePacket(
 
 // OnRecvVmibcMessagePacket processes packet reception
 func (k Keeper) OnRecvVmibcMessagePacket(ctx sdk.Context, packet channeltypes.Packet, data types.VmibcMessagePacketData) (packetAck types.VmibcMessagePacketAck, err error) {
+	fmt.Println("----ibcPrecompile--OnRecvVmibcMessagePacket-----", packet, data)
 	// validate packet data upon receiving
 	if err := data.ValidateBasic(); err != nil {
 		return packetAck, err
@@ -96,6 +99,7 @@ func (k Keeper) OnRecvVmibcMessagePacket(ctx sdk.Context, packet channeltypes.Pa
 // OnAcknowledgementVmibcMessagePacket responds to the the success or failure of a packet
 // acknowledgement written on the receiving chain.
 func (k Keeper) OnAcknowledgementVmibcMessagePacket(ctx sdk.Context, packet channeltypes.Packet, data types.VmibcMessagePacketData, ack channeltypes.Acknowledgement) error {
+	fmt.Println("----ibcPrecompile--OnAcknowledgementVmibcMessagePacket-----", packet, data)
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
 
@@ -123,7 +127,7 @@ func (k Keeper) OnAcknowledgementVmibcMessagePacket(ctx sdk.Context, packet chan
 
 // OnTimeoutVmibcMessagePacket responds to the case where a packet has not been transmitted because of a timeout
 func (k Keeper) OnTimeoutVmibcMessagePacket(ctx sdk.Context, packet channeltypes.Packet, data types.VmibcMessagePacketData) error {
-
+	fmt.Println("----ibcPrecompile--OnTimeoutVmibcMessagePacket-----", packet, data)
 	// TODO: packet timeout logic
 
 	return nil

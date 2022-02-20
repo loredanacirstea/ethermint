@@ -61,6 +61,7 @@ func (c *ibcPrecompile) Run(evm *vm.EVM, caller vm.ContractRef, input []byte) ([
 		sequence = 1
 	}
 
+	fmt.Println("----ibcPrecompile--timeoutTimestamp-----", timeoutTimestamp, timeoutHeight, sequence)
 
 	// packet := channeltypes.NewPacket([]byte("hello precompile"), sequence, portId, channelId, portId, channelId, timeoutHeight, timeoutTimestamp)
 
@@ -76,6 +77,7 @@ func (c *ibcPrecompile) Run(evm *vm.EVM, caller vm.ContractRef, input []byte) ([
 	err :=
 		c.vmIbcKeeper.TransmitVmibcMessagePacket(c.ctx, packetData, portId, channelId, timeoutHeight, timeoutTimestamp)
 
+	fmt.Println("----ibcPrecompile--err-----", err)
 
 	return []byte("hello"), nil
 }
