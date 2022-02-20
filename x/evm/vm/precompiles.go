@@ -2,6 +2,7 @@ package extendedVM
 
 import (
 	"fmt"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -11,6 +12,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	keeper "github.com/tharsis/ethermint/x/controibc/keeper"
+	types "github.com/tharsis/ethermint/x/controibc/types"
 )
 
 // Ethermint additions
@@ -48,11 +50,32 @@ func (c *ibcPrecompile) Run(evm *vm.EVM, caller vm.ContractRef, input []byte) ([
 		return nil, sdkerrors.Wrap(channeltypes.ErrChannelCapabilityNotFound, "module does not own channel capability")
 	}
 
-	var defaultTimeoutHeight = clienttypes.NewHeight(0, 100000)
+	// 60sec
+	timeoutTimestamp := uint64(time.Now().UnixNano() + 60*1000000000)
+	// currentHeight := clienttypes.GetSelfHeight(c.ctx)
 
-	packet := channeltypes.NewPacket([]byte("hello precompile"), 1, portId, channelId, portId, channelId, defaultTimeoutHeight, 1645134730571546000)
+	// timeoutHeight := clienttypes.NewHeight(currentHeight.RevisionNumber, currentHeight.RevisionHeight+50)
+	timeoutHeight := clienttypes.NewHeight(2, 100000)
+	sequence, found := c.vmIbcKeeper.ChannelKeeper.GetNextSequenceSend(c.ctx, portId, channelId)
+	if !found {
+		sequence = 1
+	}
 
-	c.vmIbcKeeper.ChannelKeeper.SendPacket(c.ctx, channelCap, packet)
+
+	// packet := channeltypes.NewPacket([]byte("hello precompile"), sequence, portId, channelId, portId, channelId, timeoutHeight, timeoutTimestamp)
+
+	// err := c.vmIbcKeeper.ChannelKeeper.SendPacket(c.ctx, channelCap, packet)
+	// fmt.Println("----ibcPrecompile--err-----", err)
+
+	// msgServer.SendVmibcMessage(c.ctx, msg)
+	// ControibcPacketData.GetVmibcMessagePacket()
+
+	packetData := types.VmibcMessagePacketData{
+		Body: "hello",
+	}
+	err :=
+		c.vmIbcKeeper.TransmitVmibcMessagePacket(c.ctx, packetData, portId, channelId, timeoutHeight, timeoutTimestamp)
+
 
 	return []byte("hello"), nil
 }
