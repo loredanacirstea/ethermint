@@ -63,6 +63,21 @@ func (k Keeper) TransmitVmibcMessagePacket(
 		return err
 	}
 
+	k.Logger(ctx).Info("IBC transmit message from port ", sourcePort, ", channel ", sourceChannel, " to port ", destinationPort, " channel ", destinationChannel, "; ", timeoutHeight, timeoutTimestamp)
+
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeVmibcMessagePacket,
+			sdk.NewAttribute(sdk.AttributeKeySender, "sender1"),
+			// sdk.NewAttribute(types.AttributeKeyReceiver, msg.Receiver),
+			sdk.NewAttribute("receiver", "receiver1"),
+		),
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+		),
+	})
+
 	return nil
 }
 
