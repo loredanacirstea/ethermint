@@ -61,11 +61,12 @@ func (k Keeper) TransmitVmibcMessagePacket(
 		timeoutTimestamp,
 	)
 
-	if err := k.ChannelKeeper.SendPacket(ctx, channelCap, packet); err != nil {
+	// err = k.ChannelKeeper.SendPacket(ctx, channelCap, packet)
+	err = k.ics4Wrapper.SendPacket(ctx, channelCap, packet)
+
+	if err != nil {
 		return err
 	}
-
-	k.Logger(ctx).Info("IBC transmit message from port ", sourcePort, ", channel ", sourceChannel, " to port ", destinationPort, " channel ", destinationChannel, "; ", timeoutHeight, timeoutTimestamp)
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
@@ -76,7 +77,8 @@ func (k Keeper) TransmitVmibcMessagePacket(
 		),
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			// sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(sdk.AttributeKeyModule, "ibc_channel"),
 		),
 	})
 

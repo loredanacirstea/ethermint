@@ -13,6 +13,7 @@ import (
 
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	channelkeeper "github.com/cosmos/ibc-go/v3/modules/core/04-channel/keeper"
 	portkeeper "github.com/cosmos/ibc-go/v3/modules/core/05-port/keeper"
 	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
@@ -25,6 +26,7 @@ type (
 		ChannelKeeper channelkeeper.Keeper
 		PortKeeper    *portkeeper.Keeper
 		ScopedKeeper  capabilitykeeper.ScopedKeeper
+		ics4Wrapper   transfertypes.ICS4Wrapper
 		cdc           codec.BinaryCodec
 		// memKey        sdk.StoreKey
 		paramstore paramtypes.Subspace
@@ -36,6 +38,7 @@ func NewKeeper(
 	storeKey sdk.StoreKey,
 	// memKey sdk.StoreKey,
 	ps paramtypes.Subspace,
+	ics4Wrapper transfertypes.ICS4Wrapper,
 	channelKeeper channelkeeper.Keeper,
 	portKeeper *portkeeper.Keeper,
 	scopedKeeper capabilitykeeper.ScopedKeeper,
@@ -49,6 +52,7 @@ func NewKeeper(
 	return Keeper{
 		portKey:       types.PortKey,
 		storeKey:      storeKey,
+		ics4Wrapper:   ics4Wrapper,
 		ChannelKeeper: channelKeeper,
 		PortKeeper:    portKeeper,
 		ScopedKeeper:  scopedKeeper,
