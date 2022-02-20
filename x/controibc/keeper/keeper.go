@@ -75,6 +75,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // IsBound checks if the module is already bound to the desired port
 func (k Keeper) IsBound(ctx sdk.Context, portID string) bool {
 	_, ok := k.ScopedKeeper.GetCapability(ctx, host.PortPath(portID))
+	fmt.Println("------IsBound-----", portID, ok)
 	return ok
 }
 
@@ -93,6 +94,7 @@ func (k Keeper) GetPort(ctx sdk.Context) string {
 
 // SetPort sets the portID for the module. Used in InitGenesis
 func (k Keeper) SetPort(ctx sdk.Context, portID string) {
+	fmt.Println("------SetPort-----", portID)
 	store := ctx.KVStore(k.storeKey)
 	store.Set(k.portKey, []byte(portID))
 }
@@ -104,5 +106,6 @@ func (k Keeper) AuthenticateCapability(ctx sdk.Context, cap *capabilitytypes.Cap
 
 // ClaimCapability allows the module that can claim a capability that IBC module passes to it
 func (k Keeper) ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) error {
+	fmt.Println("------ClaimCapability-----", cap, name)
 	return k.ScopedKeeper.ClaimCapability(ctx, cap, name)
 }

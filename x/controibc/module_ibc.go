@@ -24,6 +24,7 @@ func (am AppModule) OnChanOpenInit(
 	counterparty channeltypes.Counterparty,
 	version string,
 ) error {
+	fmt.Println("------OnChanOpenInit-----", portID, channelID, counterparty, version)
 	if order != channeltypes.UNORDERED {
 		return sdkerrors.Wrapf(channeltypes.ErrInvalidChannelOrdering, "expected %s channel, got %s ", channeltypes.UNORDERED, order)
 	}
@@ -57,6 +58,7 @@ func (am AppModule) OnChanOpenTry(
 	counterparty channeltypes.Counterparty,
 	counterpartyVersion string,
 ) (string, error) {
+	fmt.Println("------OnChanOpenTry-----", portID, channelID, counterparty, counterpartyVersion)
 	if order != channeltypes.UNORDERED {
 		return types.Version, sdkerrors.Wrapf(channeltypes.ErrInvalidChannelOrdering, "expected %s channel, got %s ", channeltypes.UNORDERED, order)
 	}
@@ -92,6 +94,7 @@ func (am AppModule) OnChanOpenAck(
 	channelID string,
 	counterpartyVersion string,
 ) error {
+	fmt.Println("------OnChanOpenAck-----", portID, channelID, counterpartyVersion)
 	if counterpartyVersion != types.Version {
 		return sdkerrors.Wrapf(types.ErrInvalidVersion, "invalid counterparty version: %s, expected %s", counterpartyVersion, types.Version)
 	}
@@ -104,6 +107,7 @@ func (am AppModule) OnChanOpenConfirm(
 	portID,
 	channelID string,
 ) error {
+	fmt.Println("------OnChanOpenConfirm-----", portID, channelID)
 	return nil
 }
 
@@ -133,7 +137,7 @@ func (am AppModule) OnRecvPacket(
 	relayer sdk.AccAddress,
 ) ibcexported.Acknowledgement {
 	var ack channeltypes.Acknowledgement
-
+	fmt.Println("------OnRecvPacket-----", modulePacket)
 	// this line is used by starport scaffolding # oracle/packet/module/recv
 
 	var modulePacketData types.ControibcPacketData
