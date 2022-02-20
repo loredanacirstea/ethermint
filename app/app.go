@@ -403,11 +403,12 @@ func NewEthermintApp(
 	)
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 	transferIBCModule := transfer.NewIBCModule(app.TransferKeeper)
-	// vmIbcModule := vmibc.NewAppModule(appCodec, app.VmIbcKeeper)
+	vmIbcModule := vmibc.NewAppModule(appCodec, app.VmIbcKeeper)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
 	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferIBCModule)
+	ibcRouter.AddRoute(vmibctypes.ModuleName, vmIbcModule)
 	app.IBCKeeper.SetRouter(ibcRouter)
 
 	// create evidence keeper with router
@@ -453,6 +454,7 @@ func NewEthermintApp(
 		// Ethermint app modules
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
+		vmIbcModule,
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that

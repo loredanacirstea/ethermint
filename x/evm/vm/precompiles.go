@@ -53,14 +53,14 @@ func (c *ibcPrecompile) Run(evm *vm.EVM, caller vm.ContractRef, input []byte) ([
 
 	// c.vmIbcKeeper.ScopedKeeper().NewCapability(c.ctx, "")
 
-	channelCap, ok := c.vmIbcKeeper.ScopedKeeper.GetCapability(c.ctx, host.ChannelCapabilityPath("vmibc", "channel-0"))
+	channelCap, ok := c.vmIbcKeeper.ScopedKeeper.GetCapability(c.ctx, host.ChannelCapabilityPath("controibc", "channel-0"))
 	if !ok {
 		return nil, sdkerrors.Wrap(channeltypes.ErrChannelCapabilityNotFound, "module does not own channel capability")
 	}
 
 	var defaultTimeoutHeight = clienttypes.NewHeight(0, 100000)
 
-	packet := channeltypes.NewPacket([]byte("hello precompile"), 1, "vmibc", "channel-0", "vmibc", "channel-0", defaultTimeoutHeight, 1645134730571546000)
+	packet := channeltypes.NewPacket([]byte("hello precompile"), 1, "controibc", "channel-0", "controibc", "channel-0", defaultTimeoutHeight, 1645134730571546000)
 
 	c.vmIbcKeeper.ChannelKeeper.SendPacket(c.ctx, channelCap, packet)
 
