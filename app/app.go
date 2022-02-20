@@ -365,6 +365,7 @@ func NewEthermintApp(
 		// tkeys[vmibctypes.TransientKey],
 		app.GetSubspace(vmibctypes.ModuleName),
 		app.IBCKeeper.ChannelKeeper,
+		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
 		scopedVmIbcKeeper,
 	)
