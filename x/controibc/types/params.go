@@ -9,13 +9,11 @@ import (
 
 var _ paramtypes.ParamSet = (*Params)(nil)
 
-
 var (
 	KeyPortId = []byte("PortId")
 	// TODO: Determine the default value
 	DefaultPortId string = "port_id"
 )
-
 
 // ParamKeyTable the param key table for launch module
 func ParamKeyTable() paramtypes.KeyTable {
@@ -27,14 +25,14 @@ func NewParams(
 	portId string,
 ) Params {
 	return Params{
-        PortId: portId,
+		PortId: portId,
 	}
 }
 
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
 	return NewParams(
-        DefaultPortId,
+		DefaultPortId,
 	)
 }
 
@@ -47,10 +45,10 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 
 // Validate validates the set of params
 func (p Params) Validate() error {
-   	if err := validatePortId(p.PortId); err != nil {
-   		return err
-   	}
-   	
+	if err := validatePortId(p.PortId); err != nil {
+		return err
+	}
+
 	return nil
 }
 

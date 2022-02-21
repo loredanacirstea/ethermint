@@ -25,6 +25,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type ControibcPacketData struct {
 	// Types that are valid to be assigned to Packet:
 	//	*ControibcPacketData_NoData
+	//	*ControibcPacketData_VmibcMessagePacket
 	Packet isControibcPacketData_Packet `protobuf_oneof:"packet"`
 }
 
@@ -70,8 +71,12 @@ type isControibcPacketData_Packet interface {
 type ControibcPacketData_NoData struct {
 	NoData *NoData `protobuf:"bytes,1,opt,name=noData,proto3,oneof" json:"noData,omitempty"`
 }
+type ControibcPacketData_VmibcMessagePacket struct {
+	VmibcMessagePacket *VmibcMessagePacketData `protobuf:"bytes,2,opt,name=vmibcMessagePacket,proto3,oneof" json:"vmibcMessagePacket,omitempty"`
+}
 
-func (*ControibcPacketData_NoData) isControibcPacketData_Packet() {}
+func (*ControibcPacketData_NoData) isControibcPacketData_Packet()             {}
+func (*ControibcPacketData_VmibcMessagePacket) isControibcPacketData_Packet() {}
 
 func (m *ControibcPacketData) GetPacket() isControibcPacketData_Packet {
 	if m != nil {
@@ -87,10 +92,18 @@ func (m *ControibcPacketData) GetNoData() *NoData {
 	return nil
 }
 
+func (m *ControibcPacketData) GetVmibcMessagePacket() *VmibcMessagePacketData {
+	if x, ok := m.GetPacket().(*ControibcPacketData_VmibcMessagePacket); ok {
+		return x.VmibcMessagePacket
+	}
+	return nil
+}
+
 // XXX_OneofWrappers is for the internal use of the proto package.
 func (*ControibcPacketData) XXX_OneofWrappers() []interface{} {
 	return []interface{}{
 		(*ControibcPacketData_NoData)(nil),
+		(*ControibcPacketData_VmibcMessagePacket)(nil),
 	}
 }
 
@@ -130,27 +143,187 @@ func (m *NoData) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_NoData proto.InternalMessageInfo
 
+// VmibcMessagePacketData defines a struct for the packet payload
+type VmibcMessagePacketData struct {
+	SourcePortId    string `protobuf:"bytes,1,opt,name=sourcePortId,proto3" json:"sourcePortId,omitempty"`
+	SourceChannelId string `protobuf:"bytes,2,opt,name=sourceChannelId,proto3" json:"sourceChannelId,omitempty"`
+	SourceAddress   string `protobuf:"bytes,3,opt,name=sourceAddress,proto3" json:"sourceAddress,omitempty"`
+	TargetPortId    string `protobuf:"bytes,4,opt,name=targetPortId,proto3" json:"targetPortId,omitempty"`
+	TargetChannelId string `protobuf:"bytes,5,opt,name=targetChannelId,proto3" json:"targetChannelId,omitempty"`
+	TargetAddress   string `protobuf:"bytes,6,opt,name=targetAddress,proto3" json:"targetAddress,omitempty"`
+	Index           uint64 `protobuf:"varint,7,opt,name=index,proto3" json:"index,omitempty"`
+	Timestamp       uint64 `protobuf:"varint,8,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Body            string `protobuf:"bytes,9,opt,name=body,proto3" json:"body,omitempty"`
+}
+
+func (m *VmibcMessagePacketData) Reset()         { *m = VmibcMessagePacketData{} }
+func (m *VmibcMessagePacketData) String() string { return proto.CompactTextString(m) }
+func (*VmibcMessagePacketData) ProtoMessage()    {}
+func (*VmibcMessagePacketData) Descriptor() ([]byte, []int) {
+	return fileDescriptor_48aea5e7041ce42b, []int{2}
+}
+func (m *VmibcMessagePacketData) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *VmibcMessagePacketData) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_VmibcMessagePacketData.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *VmibcMessagePacketData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_VmibcMessagePacketData.Merge(m, src)
+}
+func (m *VmibcMessagePacketData) XXX_Size() int {
+	return m.Size()
+}
+func (m *VmibcMessagePacketData) XXX_DiscardUnknown() {
+	xxx_messageInfo_VmibcMessagePacketData.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_VmibcMessagePacketData proto.InternalMessageInfo
+
+func (m *VmibcMessagePacketData) GetSourcePortId() string {
+	if m != nil {
+		return m.SourcePortId
+	}
+	return ""
+}
+
+func (m *VmibcMessagePacketData) GetSourceChannelId() string {
+	if m != nil {
+		return m.SourceChannelId
+	}
+	return ""
+}
+
+func (m *VmibcMessagePacketData) GetSourceAddress() string {
+	if m != nil {
+		return m.SourceAddress
+	}
+	return ""
+}
+
+func (m *VmibcMessagePacketData) GetTargetPortId() string {
+	if m != nil {
+		return m.TargetPortId
+	}
+	return ""
+}
+
+func (m *VmibcMessagePacketData) GetTargetChannelId() string {
+	if m != nil {
+		return m.TargetChannelId
+	}
+	return ""
+}
+
+func (m *VmibcMessagePacketData) GetTargetAddress() string {
+	if m != nil {
+		return m.TargetAddress
+	}
+	return ""
+}
+
+func (m *VmibcMessagePacketData) GetIndex() uint64 {
+	if m != nil {
+		return m.Index
+	}
+	return 0
+}
+
+func (m *VmibcMessagePacketData) GetTimestamp() uint64 {
+	if m != nil {
+		return m.Timestamp
+	}
+	return 0
+}
+
+func (m *VmibcMessagePacketData) GetBody() string {
+	if m != nil {
+		return m.Body
+	}
+	return ""
+}
+
+// VmibcMessagePacketAck defines a struct for the packet acknowledgment
+type VmibcMessagePacketAck struct {
+}
+
+func (m *VmibcMessagePacketAck) Reset()         { *m = VmibcMessagePacketAck{} }
+func (m *VmibcMessagePacketAck) String() string { return proto.CompactTextString(m) }
+func (*VmibcMessagePacketAck) ProtoMessage()    {}
+func (*VmibcMessagePacketAck) Descriptor() ([]byte, []int) {
+	return fileDescriptor_48aea5e7041ce42b, []int{3}
+}
+func (m *VmibcMessagePacketAck) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *VmibcMessagePacketAck) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_VmibcMessagePacketAck.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *VmibcMessagePacketAck) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_VmibcMessagePacketAck.Merge(m, src)
+}
+func (m *VmibcMessagePacketAck) XXX_Size() int {
+	return m.Size()
+}
+func (m *VmibcMessagePacketAck) XXX_DiscardUnknown() {
+	xxx_messageInfo_VmibcMessagePacketAck.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_VmibcMessagePacketAck proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*ControibcPacketData)(nil), "tharsis.ethermint.controibc.ControibcPacketData")
 	proto.RegisterType((*NoData)(nil), "tharsis.ethermint.controibc.NoData")
+	proto.RegisterType((*VmibcMessagePacketData)(nil), "tharsis.ethermint.controibc.VmibcMessagePacketData")
+	proto.RegisterType((*VmibcMessagePacketAck)(nil), "tharsis.ethermint.controibc.VmibcMessagePacketAck")
 }
 
 func init() { proto.RegisterFile("controibc/packet.proto", fileDescriptor_48aea5e7041ce42b) }
 
 var fileDescriptor_48aea5e7041ce42b = []byte{
-	// 185 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x4b, 0xce, 0xcf, 0x2b,
-	0x29, 0xca, 0xcf, 0x4c, 0x4a, 0xd6, 0x2f, 0x48, 0x4c, 0xce, 0x4e, 0x2d, 0xd1, 0x2b, 0x28, 0xca,
-	0x2f, 0xc9, 0x17, 0x92, 0x2e, 0xc9, 0x48, 0x2c, 0x2a, 0xce, 0x2c, 0xd6, 0x4b, 0x2d, 0xc9, 0x48,
-	0x2d, 0xca, 0xcd, 0xcc, 0x2b, 0xd1, 0x83, 0xab, 0x54, 0x8a, 0xe3, 0x12, 0x76, 0x86, 0x71, 0x02,
-	0xc0, 0xba, 0x5c, 0x12, 0x4b, 0x12, 0x85, 0x6c, 0xb9, 0xd8, 0xf2, 0xf2, 0x41, 0x2c, 0x09, 0x46,
-	0x05, 0x46, 0x0d, 0x6e, 0x23, 0x65, 0x3d, 0x3c, 0x86, 0xe8, 0xf9, 0x81, 0x95, 0x7a, 0x30, 0x04,
-	0x41, 0x35, 0x39, 0x71, 0x70, 0xb1, 0x41, 0x9c, 0xa0, 0xc4, 0xc1, 0xc5, 0x06, 0x91, 0x75, 0xf2,
-	0x38, 0xf1, 0x48, 0x8e, 0xf1, 0xc2, 0x23, 0x39, 0xc6, 0x07, 0x8f, 0xe4, 0x18, 0x27, 0x3c, 0x96,
-	0x63, 0xb8, 0xf0, 0x58, 0x8e, 0xe1, 0xc6, 0x63, 0x39, 0x86, 0x28, 0xbd, 0xf4, 0xcc, 0x92, 0x8c,
-	0xd2, 0x24, 0xbd, 0xe4, 0xfc, 0x5c, 0x7d, 0xa8, 0x35, 0xfa, 0x70, 0x6b, 0xf4, 0x2b, 0xf4, 0x11,
-	0xfe, 0x2a, 0xa9, 0x2c, 0x48, 0x2d, 0x4e, 0x62, 0x03, 0xfb, 0xcb, 0x18, 0x10, 0x00, 0x00, 0xff,
-	0xff, 0xf4, 0x29, 0xb3, 0x3c, 0xf1, 0x00, 0x00, 0x00,
+	// 376 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x92, 0xbf, 0x6e, 0xea, 0x30,
+	0x14, 0x87, 0x13, 0x2e, 0xe4, 0x12, 0xdf, 0x7b, 0x75, 0x25, 0xb7, 0xa5, 0x91, 0x5a, 0x45, 0x28,
+	0xed, 0xc0, 0x94, 0x48, 0x65, 0xee, 0x00, 0x74, 0x80, 0xa1, 0x15, 0xca, 0xd0, 0xa1, 0x9b, 0x93,
+	0x58, 0x24, 0xa2, 0x89, 0x23, 0xfb, 0x50, 0xc1, 0x5b, 0xf4, 0xa5, 0x2a, 0x31, 0x32, 0x76, 0xac,
+	0xe0, 0x45, 0xaa, 0xd8, 0x01, 0xca, 0x1f, 0xb1, 0xf9, 0x7c, 0x39, 0xe7, 0xf7, 0xd9, 0xb1, 0x51,
+	0x23, 0x64, 0x19, 0x70, 0x96, 0x04, 0xa1, 0x97, 0x93, 0x70, 0x4c, 0xc1, 0xcd, 0x39, 0x03, 0x86,
+	0xaf, 0x20, 0x26, 0x5c, 0x24, 0xc2, 0xa5, 0x10, 0x53, 0x9e, 0x26, 0x19, 0xb8, 0x9b, 0x4e, 0xe7,
+	0x43, 0x47, 0x67, 0xbd, 0x75, 0x35, 0x94, 0x63, 0x0f, 0x04, 0x08, 0xbe, 0x47, 0x46, 0xc6, 0x8a,
+	0x95, 0xa5, 0x37, 0xf5, 0xd6, 0x9f, 0xbb, 0x1b, 0xf7, 0x44, 0x8a, 0xfb, 0x24, 0x5b, 0xfb, 0x9a,
+	0x5f, 0x0e, 0x61, 0x8a, 0xf0, 0x5b, 0x9a, 0x04, 0xe1, 0x23, 0x15, 0x82, 0x8c, 0xa8, 0x0a, 0xb6,
+	0x2a, 0x32, 0xaa, 0x7d, 0x32, 0xea, 0xf9, 0x60, 0xac, 0x8c, 0x3e, 0x12, 0xd8, 0xad, 0x23, 0x43,
+	0x1d, 0xd5, 0xa9, 0x23, 0x43, 0x6d, 0xc2, 0x99, 0x57, 0x50, 0xe3, 0x78, 0x08, 0x76, 0xd0, 0x5f,
+	0xc1, 0x26, 0x3c, 0xa4, 0x43, 0xc6, 0x61, 0x10, 0xc9, 0xa3, 0x99, 0xfe, 0x0e, 0xc3, 0x2d, 0xf4,
+	0x5f, 0xd5, 0xbd, 0x98, 0x64, 0x19, 0x7d, 0x1d, 0x44, 0x72, 0xdb, 0xa6, 0xbf, 0x8f, 0xf1, 0x2d,
+	0xfa, 0xa7, 0x50, 0x27, 0x8a, 0x38, 0x15, 0xc2, 0xfa, 0x25, 0xfb, 0x76, 0x61, 0xe1, 0x04, 0xc2,
+	0x47, 0x14, 0x4a, 0x67, 0x55, 0x39, 0x7f, 0xb2, 0xc2, 0xa9, 0xea, 0xad, 0xb3, 0xa6, 0x9c, 0x7b,
+	0xb8, 0x70, 0x2a, 0xb4, 0x76, 0x1a, 0xca, 0xb9, 0x03, 0xf1, 0x39, 0xaa, 0x25, 0x59, 0x44, 0xa7,
+	0xd6, 0xef, 0xa6, 0xde, 0xaa, 0xfa, 0xaa, 0xc0, 0xd7, 0xc8, 0x84, 0x24, 0xa5, 0x02, 0x48, 0x9a,
+	0x5b, 0x75, 0xf9, 0x65, 0x0b, 0x30, 0x46, 0xd5, 0x80, 0x45, 0x33, 0xcb, 0x94, 0x81, 0x72, 0xed,
+	0x5c, 0xa2, 0x8b, 0xc3, 0x3f, 0xd9, 0x09, 0xc7, 0xdd, 0xfe, 0x7c, 0x69, 0xeb, 0x8b, 0xa5, 0xad,
+	0x7f, 0x2d, 0x6d, 0xfd, 0x7d, 0x65, 0x6b, 0x8b, 0x95, 0xad, 0x7d, 0xae, 0x6c, 0xed, 0xc5, 0x1d,
+	0x25, 0x10, 0x4f, 0x02, 0x37, 0x64, 0xa9, 0x57, 0x5e, 0xb3, 0xb7, 0xb9, 0x66, 0x6f, 0xea, 0x6d,
+	0xdf, 0x28, 0xcc, 0x72, 0x2a, 0x02, 0x43, 0xbe, 0xd1, 0xf6, 0x77, 0x00, 0x00, 0x00, 0xff, 0xff,
+	0x0a, 0x3c, 0x6e, 0xab, 0xbd, 0x02, 0x00, 0x00,
 }
 
 func (m *ControibcPacketData) Marshal() (dAtA []byte, err error) {
@@ -206,6 +379,27 @@ func (m *ControibcPacketData_NoData) MarshalToSizedBuffer(dAtA []byte) (int, err
 	}
 	return len(dAtA) - i, nil
 }
+func (m *ControibcPacketData_VmibcMessagePacket) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ControibcPacketData_VmibcMessagePacket) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	if m.VmibcMessagePacket != nil {
+		{
+			size, err := m.VmibcMessagePacket.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintPacket(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	return len(dAtA) - i, nil
+}
 func (m *NoData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -222,6 +416,111 @@ func (m *NoData) MarshalTo(dAtA []byte) (int, error) {
 }
 
 func (m *NoData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *VmibcMessagePacketData) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *VmibcMessagePacketData) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *VmibcMessagePacketData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Body) > 0 {
+		i -= len(m.Body)
+		copy(dAtA[i:], m.Body)
+		i = encodeVarintPacket(dAtA, i, uint64(len(m.Body)))
+		i--
+		dAtA[i] = 0x4a
+	}
+	if m.Timestamp != 0 {
+		i = encodeVarintPacket(dAtA, i, uint64(m.Timestamp))
+		i--
+		dAtA[i] = 0x40
+	}
+	if m.Index != 0 {
+		i = encodeVarintPacket(dAtA, i, uint64(m.Index))
+		i--
+		dAtA[i] = 0x38
+	}
+	if len(m.TargetAddress) > 0 {
+		i -= len(m.TargetAddress)
+		copy(dAtA[i:], m.TargetAddress)
+		i = encodeVarintPacket(dAtA, i, uint64(len(m.TargetAddress)))
+		i--
+		dAtA[i] = 0x32
+	}
+	if len(m.TargetChannelId) > 0 {
+		i -= len(m.TargetChannelId)
+		copy(dAtA[i:], m.TargetChannelId)
+		i = encodeVarintPacket(dAtA, i, uint64(len(m.TargetChannelId)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.TargetPortId) > 0 {
+		i -= len(m.TargetPortId)
+		copy(dAtA[i:], m.TargetPortId)
+		i = encodeVarintPacket(dAtA, i, uint64(len(m.TargetPortId)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if len(m.SourceAddress) > 0 {
+		i -= len(m.SourceAddress)
+		copy(dAtA[i:], m.SourceAddress)
+		i = encodeVarintPacket(dAtA, i, uint64(len(m.SourceAddress)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.SourceChannelId) > 0 {
+		i -= len(m.SourceChannelId)
+		copy(dAtA[i:], m.SourceChannelId)
+		i = encodeVarintPacket(dAtA, i, uint64(len(m.SourceChannelId)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.SourcePortId) > 0 {
+		i -= len(m.SourcePortId)
+		copy(dAtA[i:], m.SourcePortId)
+		i = encodeVarintPacket(dAtA, i, uint64(len(m.SourcePortId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *VmibcMessagePacketAck) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *VmibcMessagePacketAck) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *VmibcMessagePacketAck) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -264,7 +563,71 @@ func (m *ControibcPacketData_NoData) Size() (n int) {
 	}
 	return n
 }
+func (m *ControibcPacketData_VmibcMessagePacket) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.VmibcMessagePacket != nil {
+		l = m.VmibcMessagePacket.Size()
+		n += 1 + l + sovPacket(uint64(l))
+	}
+	return n
+}
 func (m *NoData) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *VmibcMessagePacketData) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.SourcePortId)
+	if l > 0 {
+		n += 1 + l + sovPacket(uint64(l))
+	}
+	l = len(m.SourceChannelId)
+	if l > 0 {
+		n += 1 + l + sovPacket(uint64(l))
+	}
+	l = len(m.SourceAddress)
+	if l > 0 {
+		n += 1 + l + sovPacket(uint64(l))
+	}
+	l = len(m.TargetPortId)
+	if l > 0 {
+		n += 1 + l + sovPacket(uint64(l))
+	}
+	l = len(m.TargetChannelId)
+	if l > 0 {
+		n += 1 + l + sovPacket(uint64(l))
+	}
+	l = len(m.TargetAddress)
+	if l > 0 {
+		n += 1 + l + sovPacket(uint64(l))
+	}
+	if m.Index != 0 {
+		n += 1 + sovPacket(uint64(m.Index))
+	}
+	if m.Timestamp != 0 {
+		n += 1 + sovPacket(uint64(m.Timestamp))
+	}
+	l = len(m.Body)
+	if l > 0 {
+		n += 1 + l + sovPacket(uint64(l))
+	}
+	return n
+}
+
+func (m *VmibcMessagePacketAck) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -343,6 +706,41 @@ func (m *ControibcPacketData) Unmarshal(dAtA []byte) error {
 			}
 			m.Packet = &ControibcPacketData_NoData{v}
 			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field VmibcMessagePacket", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPacket
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthPacket
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthPacket
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &VmibcMessagePacketData{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Packet = &ControibcPacketData_VmibcMessagePacket{v}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipPacket(dAtA[iNdEx:])
@@ -391,6 +789,368 @@ func (m *NoData) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: NoData: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipPacket(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthPacket
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *VmibcMessagePacketData) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowPacket
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: VmibcMessagePacketData: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: VmibcMessagePacketData: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SourcePortId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPacket
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPacket
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPacket
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SourcePortId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SourceChannelId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPacket
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPacket
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPacket
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SourceChannelId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SourceAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPacket
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPacket
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPacket
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SourceAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TargetPortId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPacket
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPacket
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPacket
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.TargetPortId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TargetChannelId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPacket
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPacket
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPacket
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.TargetChannelId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TargetAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPacket
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPacket
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPacket
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.TargetAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Index", wireType)
+			}
+			m.Index = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPacket
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Index |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 8:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Timestamp", wireType)
+			}
+			m.Timestamp = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPacket
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Timestamp |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 9:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Body", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPacket
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPacket
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPacket
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Body = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipPacket(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthPacket
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *VmibcMessagePacketAck) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowPacket
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: VmibcMessagePacketAck: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: VmibcMessagePacketAck: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

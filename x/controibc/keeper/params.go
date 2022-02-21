@@ -1,8 +1,8 @@
 package keeper
 
 import (
-	"github.com/tharsis/ethermint/x/controibc/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/tharsis/ethermint/x/controibc/types"
 )
 
 // GetParams get all parameters as types.Params
@@ -16,7 +16,6 @@ func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	k.paramstore.SetParamSet(ctx, &params)
 }
-
 
 // PortId returns the PortId param
 func (k Keeper) PortId(ctx sdk.Context) (res string) {

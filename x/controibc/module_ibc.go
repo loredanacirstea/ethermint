@@ -24,7 +24,7 @@ func (am AppModule) OnChanOpenInit(
 	counterparty channeltypes.Counterparty,
 	version string,
 ) error {
-    if order != channeltypes.UNORDERED {
+	if order != channeltypes.UNORDERED {
 		return sdkerrors.Wrapf(channeltypes.ErrInvalidChannelOrdering, "expected %s channel, got %s ", channeltypes.UNORDERED, order)
 	}
 
@@ -148,14 +148,33 @@ func (am AppModule) OnRecvPacket(
 
 	// Dispatch packet
 	switch packet := modulePacketData.Packet.(type) {
-	// this line is used by starport scaffolding # ibc/packet/module/recv
+	case *types.ControibcPacketData_VmibcMessagePacket:
+		packetAck, err := am.keeper.OnRecvVmibcMessagePacket(ctx, modulePacket, *packet.VmibcMessagePacket)
+		if err != nil {
+			ack = channeltypes.NewErrorAcknowledgement(err.Error())
+		} else {
+			// Encode packet acknowledgment
+			packetAckBytes, err := types.ModuleCdc.MarshalJSON(&packetAck)
+			if err != nil {
+				return channeltypes.NewErrorAcknowledgement(sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error()).Error())
+			}
+			ack = channeltypes.NewResultAcknowledgement(sdk.MustSortJSON(packetAckBytes))
+		}
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeVmibcMessagePacket,
+				sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+				sdk.NewAttribute(types.AttributeKeyAckSuccess, fmt.Sprintf("%t", err != nil)),
+			),
+		)
+		// this line is used by starport scaffolding # ibc/packet/module/recv
 	default:
 		errMsg := fmt.Sprintf("unrecognized %s packet type: %T", types.ModuleName, packet)
 		return channeltypes.NewErrorAcknowledgement(errMsg)
 	}
 
 	// NOTE: acknowledgement will be written synchronously during IBC handler execution.
-    return ack
+	return ack
 }
 
 // OnAcknowledgementPacket implements the IBCModule interface
@@ -181,19 +200,25 @@ func (am AppModule) OnAcknowledgementPacket(
 
 	// Dispatch packet
 	switch packet := modulePacketData.Packet.(type) {
-	// this line is used by starport scaffolding # ibc/packet/module/ack
+	case *types.ControibcPacketData_VmibcMessagePacket:
+		err := am.keeper.OnAcknowledgementVmibcMessagePacket(ctx, modulePacket, *packet.VmibcMessagePacket, ack)
+		if err != nil {
+			return err
+		}
+		eventType = types.EventTypeVmibcMessagePacket
+		// this line is used by starport scaffolding # ibc/packet/module/ack
 	default:
 		errMsg := fmt.Sprintf("unrecognized %s packet type: %T", types.ModuleName, packet)
 		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
 	}
 
-    ctx.EventManager().EmitEvent(
-        sdk.NewEvent(
-            eventType,
-            sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-            sdk.NewAttribute(types.AttributeKeyAck, fmt.Sprintf("%v", ack)),
-        ),
-    )
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			eventType,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(types.AttributeKeyAck, fmt.Sprintf("%v", ack)),
+		),
+	)
 
 	switch resp := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Result:
@@ -219,7 +244,7 @@ func (am AppModule) OnAcknowledgementPacket(
 func (am AppModule) OnTimeoutPacket(
 	ctx sdk.Context,
 	modulePacket channeltypes.Packet,
-    relayer sdk.AccAddress,
+	relayer sdk.AccAddress,
 ) error {
 	var modulePacketData types.ControibcPacketData
 	if err := modulePacketData.Unmarshal(modulePacket.GetData()); err != nil {
@@ -227,14 +252,19 @@ func (am AppModule) OnTimeoutPacket(
 	}
 
 	// Dispatch packet
-    switch packet := modulePacketData.Packet.(type) {
-        // this line is used by starport scaffolding # ibc/packet/module/timeout
-        default:
-            errMsg := fmt.Sprintf("unrecognized %s packet type: %T", types.ModuleName, packet)
-            return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
-    }
+	switch packet := modulePacketData.Packet.(type) {
+	case *types.ControibcPacketData_VmibcMessagePacket:
+		err := am.keeper.OnTimeoutVmibcMessagePacket(ctx, modulePacket, *packet.VmibcMessagePacket)
+		if err != nil {
+			return err
+		}
+		// this line is used by starport scaffolding # ibc/packet/module/timeout
+	default:
+		errMsg := fmt.Sprintf("unrecognized %s packet type: %T", types.ModuleName, packet)
+		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
+	}
 
-    return nil
+	return nil
 }
 
 func (am AppModule) NegotiateAppVersion(

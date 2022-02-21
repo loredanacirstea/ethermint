@@ -9,10 +9,27 @@ message ControibcPacketData {
     oneof packet {
         NoData noData = 1;
         // this line is used by starport scaffolding # ibc/packet/proto/field
+				VmibcMessagePacketData vmibcMessagePacket = 2; // this line is used by starport scaffolding # ibc/packet/proto/field/number
     }
 }
 
 message NoData {
 }
 
+// VmibcMessagePacketData defines a struct for the packet payload
+message VmibcMessagePacketData {
+  string sourcePortId = 1;
+  string sourceChannelId = 2;
+  string sourceAddress = 3;
+  string targetPortId = 4;
+  string targetChannelId = 5;
+  string targetAddress = 6;
+  uint64 index = 7;
+  uint64 timestamp = 8;
+  string body = 9;
+}
+
+// VmibcMessagePacketAck defines a struct for the packet acknowledgment
+message VmibcMessagePacketAck {
+	}
 // this line is used by starport scaffolding # ibc/packet/proto/message
