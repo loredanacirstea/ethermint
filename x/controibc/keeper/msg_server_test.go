@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-    "github.com/tharsis/ethermint/x/controibc/types"
-    "github.com/tharsis/ethermint/x/controibc/keeper"
-    keepertest "github.com/tharsis/ethermint/testutil/keeper"
+	keepertest "github.com/tharsis/ethermint/testutil/keeper"
+	"github.com/tharsis/ethermint/x/controibc/keeper"
+	"github.com/tharsis/ethermint/x/controibc/types"
 )
 
 func setupMsgServer(t testing.TB) (types.MsgServer, context.Context) {
