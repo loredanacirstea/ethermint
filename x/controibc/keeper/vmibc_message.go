@@ -20,12 +20,11 @@ func (k Keeper) TransmitVmibcMessagePacket(
 	timeoutHeight clienttypes.Height,
 	timeoutTimestamp uint64,
 ) error {
-
 	sourceChannelEnd, found := k.ChannelKeeper.GetChannel(ctx, sourcePort, sourceChannel)
 	if !found {
 		return sdkerrors.Wrapf(channeltypes.ErrChannelNotFound, "port ID (%s) channel ID (%s)", sourcePort, sourceChannel)
 	}
-
+	// TODO - redundant?
 	destinationPort := sourceChannelEnd.GetCounterparty().GetPortID()
 	destinationChannel := sourceChannelEnd.GetCounterparty().GetChannelID()
 
@@ -59,8 +58,6 @@ func (k Keeper) TransmitVmibcMessagePacket(
 		timeoutTimestamp,
 	)
 
-
-
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeVmibcMessagePacket,
@@ -90,7 +87,7 @@ func (k Keeper) OnRecvVmibcMessagePacket(ctx sdk.Context, packet channeltypes.Pa
 		return packetAck, err
 	}
 
-	// TODO: packet reception logic
+	k.SetVmIbcMessage(ctx, data)
 
 	return packetAck, nil
 }
