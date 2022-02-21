@@ -136,8 +136,9 @@ func (am AppModule) OnRecvPacket(
 	modulePacket channeltypes.Packet,
 	relayer sdk.AccAddress,
 ) ibcexported.Acknowledgement {
-	var ack channeltypes.Acknowledgement
 	fmt.Println("------OnRecvPacket-----", modulePacket)
+	var ack channeltypes.Acknowledgement
+
 	// this line is used by starport scaffolding # oracle/packet/module/recv
 
 	var modulePacketData types.ControibcPacketData
