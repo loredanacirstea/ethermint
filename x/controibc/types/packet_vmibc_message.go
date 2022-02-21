@@ -1,5 +1,7 @@
 package types
 
+// import "github.com/tendermint/tendermint/crypto/tmhash"
+
 // ValidateBasic is used for validating the packet
 func (p VmibcMessagePacketData) ValidateBasic() error {
 
@@ -15,4 +17,11 @@ func (p VmibcMessagePacketData) GetBytes() ([]byte, error) {
 	modulePacket.Packet = &ControibcPacketData_VmibcMessagePacket{&p}
 
 	return modulePacket.Marshal()
+}
+
+// GetID returns the SHA256 hash of the ERC20 address and denomination
+func (p VmibcMessagePacketData) GetID() []byte {
+	// id := p.SourceChannelId + p.SourcePortId + p.SourceAddress + p.TargetAddress + string(p.Timestamp) + p.Body
+	// return tmhash.Sum([]byte(id))
+	return []byte(p.TargetAddress)
 }

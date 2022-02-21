@@ -59,8 +59,6 @@ func (k Keeper) TransmitVmibcMessagePacket(
 		timeoutTimestamp,
 	)
 
-
-
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeVmibcMessagePacket,
@@ -91,6 +89,7 @@ func (k Keeper) OnRecvVmibcMessagePacket(ctx sdk.Context, packet channeltypes.Pa
 	}
 
 	// TODO: packet reception logic
+	k.SetVmIbcMessage(ctx, data)
 
 	return packetAck, nil
 }
