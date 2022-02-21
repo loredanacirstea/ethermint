@@ -28,8 +28,12 @@ func (k Keeper) TransmitVmibcMessagePacket(
 		return sdkerrors.Wrapf(channeltypes.ErrChannelNotFound, "port ID (%s) channel ID (%s)", sourcePort, sourceChannel)
 	}
 
+	fmt.Println("---TransmitVmibcMessagePacket-sourceChannelEnd-found---", sourceChannelEnd, found)
+
 	destinationPort := sourceChannelEnd.GetCounterparty().GetPortID()
 	destinationChannel := sourceChannelEnd.GetCounterparty().GetChannelID()
+
+	fmt.Println("---TransmitVmibcMessagePacket-destinationPort-destinationChannel---", destinationPort, destinationChannel)
 
 	// get the next sequence
 	sequence, found := k.ChannelKeeper.GetNextSequenceSend(ctx, sourcePort, sourceChannel)
@@ -40,15 +44,21 @@ func (k Keeper) TransmitVmibcMessagePacket(
 		)
 	}
 
+	fmt.Println("---TransmitVmibcMessagePacket-sequence-found---", sequence, found)
+
 	channelCap, ok := k.ScopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(sourcePort, sourceChannel))
 	if !ok {
 		return sdkerrors.Wrap(channeltypes.ErrChannelCapabilityNotFound, "module does not own channel capability")
 	}
 
+	fmt.Println("---TransmitVmibcMessagePacket-channelCap-ok---", channelCap, ok)
+
 	packetBytes, err := packetData.GetBytes()
 	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, "cannot marshal the packet: "+err.Error())
 	}
+
+	fmt.Println("---TransmitVmibcMessagePacket-packetBytes---", packetBytes)
 
 	packet := channeltypes.NewPacket(
 		packetBytes,
@@ -61,22 +71,28 @@ func (k Keeper) TransmitVmibcMessagePacket(
 		timeoutTimestamp,
 	)
 
+	fmt.Println("---TransmitVmibcMessagePacket-packet---", packet)
 
-
-	ctx.EventManager().EmitEvents(sdk.Events{
-		sdk.NewEvent(
-			types.EventTypeVmibcMessagePacket,
-			sdk.NewAttribute(sdk.AttributeKeySender, "sender1"),
-			// sdk.NewAttribute(types.AttributeKeyReceiver, msg.Receiver),
-			sdk.NewAttribute("receiver", "receiver1"),
-		),
-		sdk.NewEvent(
-			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, channeltypes.AttributeValueCategory),
-		),
-	})
+	fmt.Println("---TransmitVmibcMessagePacket-post event---", types.EventTypeVmibcMessagePacket, sdk.EventTypeMessage)
 
 	err = k.ics4Wrapper.SendPacket(ctx, channelCap, packet)
+
+	// fmt.Println("----", channeltypes.AttributeValueCategory)
+
+	// ctx.EventManager().EmitEvents(sdk.Events{
+	// 	sdk.NewEvent(
+	// 		types.EventTypeVmibcMessagePacket,
+	// 		sdk.NewAttribute(sdk.AttributeKeySender, "sender1"),
+	// 		// sdk.NewAttribute(types.AttributeKeyReceiver, msg.Receiver),
+	// 		sdk.NewAttribute("receiver", "receiver1"),
+	// 	),
+	// 	sdk.NewEvent(
+	// 		sdk.EventTypeMessage,
+	// 		sdk.NewAttribute(sdk.AttributeKeyModule, channeltypes.AttributeValueCategory),
+	// 	),
+	// })
+
+	fmt.Println("---TransmitVmibcMessagePacket-post SendPacket---", err)
 
 	if err != nil {
 		return err
