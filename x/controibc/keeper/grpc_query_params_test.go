@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	testkeeper 	"github.com/tharsis/ethermint/testutil/keeper"
+	testkeeper "github.com/tharsis/ethermint/testutil/keeper"
 	"github.com/tharsis/ethermint/x/controibc/types"
 )
 

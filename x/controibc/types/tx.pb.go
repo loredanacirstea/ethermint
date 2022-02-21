@@ -9,7 +9,11 @@ import (
 	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
+	io "io"
 	math "math"
+	math_bits "math/bits"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -23,19 +27,216 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+type MsgSendVmibcMessage struct {
+	Creator          string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
+	Port             string `protobuf:"bytes,2,opt,name=port,proto3" json:"port,omitempty"`
+	ChannelID        string `protobuf:"bytes,3,opt,name=channelID,proto3" json:"channelID,omitempty"`
+	TimeoutTimestamp uint64 `protobuf:"varint,4,opt,name=timeoutTimestamp,proto3" json:"timeoutTimestamp,omitempty"`
+	SourcePortId     string `protobuf:"bytes,5,opt,name=sourcePortId,proto3" json:"sourcePortId,omitempty"`
+	SourceChannelId  string `protobuf:"bytes,6,opt,name=sourceChannelId,proto3" json:"sourceChannelId,omitempty"`
+	SourceAddress    string `protobuf:"bytes,7,opt,name=sourceAddress,proto3" json:"sourceAddress,omitempty"`
+	TargetPortId     string `protobuf:"bytes,8,opt,name=targetPortId,proto3" json:"targetPortId,omitempty"`
+	TargetChannelId  string `protobuf:"bytes,9,opt,name=targetChannelId,proto3" json:"targetChannelId,omitempty"`
+	TargetAddress    string `protobuf:"bytes,10,opt,name=targetAddress,proto3" json:"targetAddress,omitempty"`
+	Index            uint64 `protobuf:"varint,11,opt,name=index,proto3" json:"index,omitempty"`
+	Timestamp        uint64 `protobuf:"varint,12,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Body             string `protobuf:"bytes,13,opt,name=body,proto3" json:"body,omitempty"`
+}
+
+func (m *MsgSendVmibcMessage) Reset()         { *m = MsgSendVmibcMessage{} }
+func (m *MsgSendVmibcMessage) String() string { return proto.CompactTextString(m) }
+func (*MsgSendVmibcMessage) ProtoMessage()    {}
+func (*MsgSendVmibcMessage) Descriptor() ([]byte, []int) {
+	return fileDescriptor_cfad8fdc4c243cdf, []int{0}
+}
+func (m *MsgSendVmibcMessage) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgSendVmibcMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgSendVmibcMessage.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgSendVmibcMessage) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgSendVmibcMessage.Merge(m, src)
+}
+func (m *MsgSendVmibcMessage) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgSendVmibcMessage) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgSendVmibcMessage.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgSendVmibcMessage proto.InternalMessageInfo
+
+func (m *MsgSendVmibcMessage) GetCreator() string {
+	if m != nil {
+		return m.Creator
+	}
+	return ""
+}
+
+func (m *MsgSendVmibcMessage) GetPort() string {
+	if m != nil {
+		return m.Port
+	}
+	return ""
+}
+
+func (m *MsgSendVmibcMessage) GetChannelID() string {
+	if m != nil {
+		return m.ChannelID
+	}
+	return ""
+}
+
+func (m *MsgSendVmibcMessage) GetTimeoutTimestamp() uint64 {
+	if m != nil {
+		return m.TimeoutTimestamp
+	}
+	return 0
+}
+
+func (m *MsgSendVmibcMessage) GetSourcePortId() string {
+	if m != nil {
+		return m.SourcePortId
+	}
+	return ""
+}
+
+func (m *MsgSendVmibcMessage) GetSourceChannelId() string {
+	if m != nil {
+		return m.SourceChannelId
+	}
+	return ""
+}
+
+func (m *MsgSendVmibcMessage) GetSourceAddress() string {
+	if m != nil {
+		return m.SourceAddress
+	}
+	return ""
+}
+
+func (m *MsgSendVmibcMessage) GetTargetPortId() string {
+	if m != nil {
+		return m.TargetPortId
+	}
+	return ""
+}
+
+func (m *MsgSendVmibcMessage) GetTargetChannelId() string {
+	if m != nil {
+		return m.TargetChannelId
+	}
+	return ""
+}
+
+func (m *MsgSendVmibcMessage) GetTargetAddress() string {
+	if m != nil {
+		return m.TargetAddress
+	}
+	return ""
+}
+
+func (m *MsgSendVmibcMessage) GetIndex() uint64 {
+	if m != nil {
+		return m.Index
+	}
+	return 0
+}
+
+func (m *MsgSendVmibcMessage) GetTimestamp() uint64 {
+	if m != nil {
+		return m.Timestamp
+	}
+	return 0
+}
+
+func (m *MsgSendVmibcMessage) GetBody() string {
+	if m != nil {
+		return m.Body
+	}
+	return ""
+}
+
+type MsgSendVmibcMessageResponse struct {
+}
+
+func (m *MsgSendVmibcMessageResponse) Reset()         { *m = MsgSendVmibcMessageResponse{} }
+func (m *MsgSendVmibcMessageResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgSendVmibcMessageResponse) ProtoMessage()    {}
+func (*MsgSendVmibcMessageResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_cfad8fdc4c243cdf, []int{1}
+}
+func (m *MsgSendVmibcMessageResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgSendVmibcMessageResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgSendVmibcMessageResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgSendVmibcMessageResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgSendVmibcMessageResponse.Merge(m, src)
+}
+func (m *MsgSendVmibcMessageResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgSendVmibcMessageResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgSendVmibcMessageResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgSendVmibcMessageResponse proto.InternalMessageInfo
+
+func init() {
+	proto.RegisterType((*MsgSendVmibcMessage)(nil), "tharsis.ethermint.controibc.MsgSendVmibcMessage")
+	proto.RegisterType((*MsgSendVmibcMessageResponse)(nil), "tharsis.ethermint.controibc.MsgSendVmibcMessageResponse")
+}
+
 func init() { proto.RegisterFile("controibc/tx.proto", fileDescriptor_cfad8fdc4c243cdf) }
 
 var fileDescriptor_cfad8fdc4c243cdf = []byte{
-	// 133 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x4a, 0xce, 0xcf, 0x2b,
-	0x29, 0xca, 0xcf, 0x4c, 0x4a, 0xd6, 0x2f, 0xa9, 0xd0, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x92,
-	0x2e, 0xc9, 0x48, 0x2c, 0x2a, 0xce, 0x2c, 0xd6, 0x4b, 0x2d, 0xc9, 0x48, 0x2d, 0xca, 0xcd, 0xcc,
-	0x2b, 0xd1, 0x83, 0xab, 0x32, 0x62, 0xe5, 0x62, 0xf6, 0x2d, 0x4e, 0x77, 0xf2, 0x38, 0xf1, 0x48,
-	0x8e, 0xf1, 0xc2, 0x23, 0x39, 0xc6, 0x07, 0x8f, 0xe4, 0x18, 0x27, 0x3c, 0x96, 0x63, 0xb8, 0xf0,
-	0x58, 0x8e, 0xe1, 0xc6, 0x63, 0x39, 0x86, 0x28, 0xbd, 0xf4, 0xcc, 0x92, 0x8c, 0xd2, 0x24, 0xbd,
-	0xe4, 0xfc, 0x5c, 0x7d, 0xa8, 0x41, 0xfa, 0x70, 0x83, 0xf4, 0x2b, 0xf4, 0x91, 0x2c, 0xac, 0x2c,
-	0x48, 0x2d, 0x4e, 0x62, 0x03, 0x5b, 0x6a, 0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0x7d, 0xc8, 0xd1,
-	0xe5, 0x8a, 0x00, 0x00, 0x00,
+	// 391 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x92, 0x3b, 0x4f, 0xe3, 0x40,
+	0x10, 0xc7, 0xe3, 0xcb, 0xeb, 0xb2, 0x97, 0xe8, 0xa2, 0xbd, 0x2b, 0x56, 0x97, 0xc3, 0x8a, 0x22,
+	0x8a, 0x88, 0xc2, 0x46, 0xd0, 0xd0, 0xf2, 0x28, 0x48, 0x11, 0x09, 0x05, 0x44, 0x41, 0xe7, 0xc7,
+	0xc8, 0x5e, 0x09, 0x7b, 0xad, 0xdd, 0x89, 0x94, 0x34, 0x74, 0xf4, 0x7c, 0x21, 0x7a, 0xca, 0x94,
+	0x94, 0x28, 0xf9, 0x22, 0xc8, 0xbb, 0x79, 0x27, 0x42, 0xa2, 0xdb, 0xf9, 0xed, 0x78, 0x7e, 0xd6,
+	0x7f, 0x87, 0xd0, 0x40, 0xa4, 0x28, 0x05, 0xf7, 0x03, 0x17, 0x47, 0x4e, 0x26, 0x05, 0x0a, 0xda,
+	0xc2, 0xd8, 0x93, 0x8a, 0x2b, 0x07, 0x30, 0x06, 0x99, 0xf0, 0x14, 0x9d, 0x65, 0x57, 0xe7, 0xb5,
+	0x48, 0xfe, 0xf4, 0x55, 0x74, 0x0b, 0x69, 0x78, 0x9f, 0x70, 0x3f, 0xe8, 0x83, 0x52, 0x5e, 0x04,
+	0x94, 0x91, 0x6a, 0x20, 0xc1, 0x43, 0x21, 0x99, 0xd5, 0xb6, 0xba, 0xb5, 0xc1, 0xa2, 0xa4, 0x94,
+	0x94, 0x32, 0x21, 0x91, 0xfd, 0xd0, 0x58, 0x9f, 0xe9, 0x7f, 0x52, 0x0b, 0x62, 0x2f, 0x4d, 0xe1,
+	0xb1, 0x77, 0xc5, 0x8a, 0xfa, 0x62, 0x05, 0xe8, 0x11, 0x69, 0x22, 0x4f, 0x40, 0x0c, 0xf1, 0x8e,
+	0x27, 0xa0, 0xd0, 0x4b, 0x32, 0x56, 0x6a, 0x5b, 0xdd, 0xd2, 0x60, 0x87, 0xd3, 0x0e, 0xa9, 0x2b,
+	0x31, 0x94, 0x01, 0xdc, 0x08, 0x89, 0xbd, 0x90, 0x95, 0xf5, 0xb0, 0x0d, 0x46, 0xbb, 0xe4, 0xb7,
+	0xa9, 0x2f, 0xe7, 0x8a, 0x90, 0x55, 0x74, 0xdb, 0x36, 0xa6, 0x87, 0xa4, 0x61, 0xd0, 0x79, 0x18,
+	0x4a, 0x50, 0x8a, 0x55, 0x75, 0xdf, 0x26, 0xcc, 0x9d, 0xe8, 0xc9, 0x08, 0x70, 0xee, 0xfc, 0x69,
+	0x9c, 0xeb, 0x2c, 0x77, 0x9a, 0x7a, 0xe5, 0xac, 0x19, 0xe7, 0x16, 0xce, 0x9d, 0x06, 0x2d, 0x9c,
+	0xc4, 0x38, 0x37, 0x20, 0xfd, 0x4b, 0xca, 0x3c, 0x0d, 0x61, 0xc4, 0x7e, 0xe9, 0x20, 0x4c, 0x91,
+	0xe7, 0x88, 0xcb, 0x88, 0xea, 0xfa, 0x66, 0x05, 0xf2, 0xe4, 0x7d, 0x11, 0x8e, 0x59, 0xc3, 0x24,
+	0x9f, 0x9f, 0x3b, 0x07, 0xa4, 0xb5, 0xe7, 0xf9, 0x06, 0xa0, 0x32, 0x91, 0x2a, 0x38, 0x79, 0xb6,
+	0x48, 0xb1, 0xaf, 0x22, 0xfa, 0x44, 0x9a, 0x3b, 0x4f, 0x7c, 0xec, 0x7c, 0xb1, 0x18, 0xce, 0x9e,
+	0xa9, 0xff, 0xce, 0xbe, 0xfb, 0xc5, 0xe2, 0x3f, 0x2e, 0xae, 0xdf, 0xa6, 0xb6, 0x35, 0x99, 0xda,
+	0xd6, 0xc7, 0xd4, 0xb6, 0x5e, 0x66, 0x76, 0x61, 0x32, 0xb3, 0x0b, 0xef, 0x33, 0xbb, 0xf0, 0xe0,
+	0x44, 0x1c, 0xe3, 0xa1, 0xef, 0x04, 0x22, 0x71, 0xe7, 0xd3, 0xdd, 0xe5, 0x74, 0x77, 0xe4, 0xae,
+	0x2d, 0xf4, 0x38, 0x03, 0xe5, 0x57, 0xf4, 0x52, 0x9f, 0x7e, 0x06, 0x00, 0x00, 0xff, 0xff, 0xba,
+	0x74, 0x36, 0x2b, 0xea, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -50,6 +251,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
+	SendVmibcMessage(ctx context.Context, in *MsgSendVmibcMessage, opts ...grpc.CallOption) (*MsgSendVmibcMessageResponse, error)
 }
 
 type msgClient struct {
@@ -60,22 +262,836 @@ func NewMsgClient(cc grpc1.ClientConn) MsgClient {
 	return &msgClient{cc}
 }
 
+func (c *msgClient) SendVmibcMessage(ctx context.Context, in *MsgSendVmibcMessage, opts ...grpc.CallOption) (*MsgSendVmibcMessageResponse, error) {
+	out := new(MsgSendVmibcMessageResponse)
+	err := c.cc.Invoke(ctx, "/tharsis.ethermint.controibc.Msg/SendVmibcMessage", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
+	SendVmibcMessage(context.Context, *MsgSendVmibcMessage) (*MsgSendVmibcMessageResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
 type UnimplementedMsgServer struct {
 }
 
+func (*UnimplementedMsgServer) SendVmibcMessage(ctx context.Context, req *MsgSendVmibcMessage) (*MsgSendVmibcMessageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendVmibcMessage not implemented")
+}
+
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
 	s.RegisterService(&_Msg_serviceDesc, srv)
+}
+
+func _Msg_SendVmibcMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgSendVmibcMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).SendVmibcMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/tharsis.ethermint.controibc.Msg/SendVmibcMessage",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).SendVmibcMessage(ctx, req.(*MsgSendVmibcMessage))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 var _Msg_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "tharsis.ethermint.controibc.Msg",
 	HandlerType: (*MsgServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams:     []grpc.StreamDesc{},
-	Metadata:    "controibc/tx.proto",
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "SendVmibcMessage",
+			Handler:    _Msg_SendVmibcMessage_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "controibc/tx.proto",
 }
+
+func (m *MsgSendVmibcMessage) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgSendVmibcMessage) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgSendVmibcMessage) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Body) > 0 {
+		i -= len(m.Body)
+		copy(dAtA[i:], m.Body)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Body)))
+		i--
+		dAtA[i] = 0x6a
+	}
+	if m.Timestamp != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.Timestamp))
+		i--
+		dAtA[i] = 0x60
+	}
+	if m.Index != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.Index))
+		i--
+		dAtA[i] = 0x58
+	}
+	if len(m.TargetAddress) > 0 {
+		i -= len(m.TargetAddress)
+		copy(dAtA[i:], m.TargetAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.TargetAddress)))
+		i--
+		dAtA[i] = 0x52
+	}
+	if len(m.TargetChannelId) > 0 {
+		i -= len(m.TargetChannelId)
+		copy(dAtA[i:], m.TargetChannelId)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.TargetChannelId)))
+		i--
+		dAtA[i] = 0x4a
+	}
+	if len(m.TargetPortId) > 0 {
+		i -= len(m.TargetPortId)
+		copy(dAtA[i:], m.TargetPortId)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.TargetPortId)))
+		i--
+		dAtA[i] = 0x42
+	}
+	if len(m.SourceAddress) > 0 {
+		i -= len(m.SourceAddress)
+		copy(dAtA[i:], m.SourceAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.SourceAddress)))
+		i--
+		dAtA[i] = 0x3a
+	}
+	if len(m.SourceChannelId) > 0 {
+		i -= len(m.SourceChannelId)
+		copy(dAtA[i:], m.SourceChannelId)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.SourceChannelId)))
+		i--
+		dAtA[i] = 0x32
+	}
+	if len(m.SourcePortId) > 0 {
+		i -= len(m.SourcePortId)
+		copy(dAtA[i:], m.SourcePortId)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.SourcePortId)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if m.TimeoutTimestamp != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.TimeoutTimestamp))
+		i--
+		dAtA[i] = 0x20
+	}
+	if len(m.ChannelID) > 0 {
+		i -= len(m.ChannelID)
+		copy(dAtA[i:], m.ChannelID)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.ChannelID)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.Port) > 0 {
+		i -= len(m.Port)
+		copy(dAtA[i:], m.Port)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Port)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Creator) > 0 {
+		i -= len(m.Creator)
+		copy(dAtA[i:], m.Creator)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Creator)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgSendVmibcMessageResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgSendVmibcMessageResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgSendVmibcMessageResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
+	offset -= sovTx(v)
+	base := offset
+	for v >= 1<<7 {
+		dAtA[offset] = uint8(v&0x7f | 0x80)
+		v >>= 7
+		offset++
+	}
+	dAtA[offset] = uint8(v)
+	return base
+}
+func (m *MsgSendVmibcMessage) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Creator)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.Port)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.ChannelID)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if m.TimeoutTimestamp != 0 {
+		n += 1 + sovTx(uint64(m.TimeoutTimestamp))
+	}
+	l = len(m.SourcePortId)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.SourceChannelId)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.SourceAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.TargetPortId)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.TargetChannelId)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.TargetAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if m.Index != 0 {
+		n += 1 + sovTx(uint64(m.Index))
+	}
+	if m.Timestamp != 0 {
+		n += 1 + sovTx(uint64(m.Timestamp))
+	}
+	l = len(m.Body)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	return n
+}
+
+func (m *MsgSendVmibcMessageResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func sovTx(x uint64) (n int) {
+	return (math_bits.Len64(x|1) + 6) / 7
+}
+func sozTx(x uint64) (n int) {
+	return sovTx(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+}
+func (m *MsgSendVmibcMessage) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgSendVmibcMessage: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgSendVmibcMessage: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Creator", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Creator = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Port", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Port = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ChannelID", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ChannelID = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TimeoutTimestamp", wireType)
+			}
+			m.TimeoutTimestamp = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.TimeoutTimestamp |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SourcePortId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SourcePortId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SourceChannelId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SourceChannelId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SourceAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SourceAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TargetPortId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.TargetPortId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 9:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TargetChannelId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.TargetChannelId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 10:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TargetAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.TargetAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 11:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Index", wireType)
+			}
+			m.Index = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Index |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 12:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Timestamp", wireType)
+			}
+			m.Timestamp = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Timestamp |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 13:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Body", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Body = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgSendVmibcMessageResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgSendVmibcMessageResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgSendVmibcMessageResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func skipTx(dAtA []byte) (n int, err error) {
+	l := len(dAtA)
+	iNdEx := 0
+	depth := 0
+	for iNdEx < l {
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return 0, ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return 0, io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		wireType := int(wire & 0x7)
+		switch wireType {
+		case 0:
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return 0, ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return 0, io.ErrUnexpectedEOF
+				}
+				iNdEx++
+				if dAtA[iNdEx-1] < 0x80 {
+					break
+				}
+			}
+		case 1:
+			iNdEx += 8
+		case 2:
+			var length int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return 0, ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return 0, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				length |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if length < 0 {
+				return 0, ErrInvalidLengthTx
+			}
+			iNdEx += length
+		case 3:
+			depth++
+		case 4:
+			if depth == 0 {
+				return 0, ErrUnexpectedEndOfGroupTx
+			}
+			depth--
+		case 5:
+			iNdEx += 4
+		default:
+			return 0, fmt.Errorf("proto: illegal wireType %d", wireType)
+		}
+		if iNdEx < 0 {
+			return 0, ErrInvalidLengthTx
+		}
+		if depth == 0 {
+			return iNdEx, nil
+		}
+	}
+	return 0, io.ErrUnexpectedEOF
+}
+
+var (
+	ErrInvalidLengthTx        = fmt.Errorf("proto: negative length found during unmarshaling")
+	ErrIntOverflowTx          = fmt.Errorf("proto: integer overflow")
+	ErrUnexpectedEndOfGroupTx = fmt.Errorf("proto: unexpected end of group")
+)
