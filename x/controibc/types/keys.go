@@ -23,9 +23,15 @@ const (
 	PortID = "controibc"
 )
 
+// prefix bytes for the EVM persistent store
+const (
+	prefixVmIbcMessage = iota + 1
+)
+
 var (
 	// PortKey defines the key to store the port ID in store
-	PortKey = KeyPrefix("controibc-port-")
+	PortKey               = KeyPrefix("controibc-port-")
+	KeyPrefixVmIbcMessage = []byte{prefixVmIbcMessage}
 )
 
 func KeyPrefix(p string) []byte {
