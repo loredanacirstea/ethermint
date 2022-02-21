@@ -59,12 +59,7 @@ func (k Keeper) TransmitVmibcMessagePacket(
 		timeoutTimestamp,
 	)
 
-	// err = k.ChannelKeeper.SendPacket(ctx, channelCap, packet)
-	err = k.ics4Wrapper.SendPacket(ctx, channelCap, packet)
 
-	if err != nil {
-		return err
-	}
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
@@ -75,10 +70,15 @@ func (k Keeper) TransmitVmibcMessagePacket(
 		),
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
-			// sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			sdk.NewAttribute(sdk.AttributeKeyModule, "ibc_channel"),
+			sdk.NewAttribute(sdk.AttributeKeyModule, channeltypes.AttributeValueCategory),
 		),
 	})
+
+	err = k.ics4Wrapper.SendPacket(ctx, channelCap, packet)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
