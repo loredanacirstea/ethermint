@@ -10,6 +10,7 @@ import (
 
 // SetVmIbcMessage stores a message
 func (k Keeper) SetVmIbcMessage(ctx sdk.Context, data types.VmibcMessagePacketData) {
+	fmt.Println("--SetVmIbcMessage-data-", data)
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixVmIbcMessage)
 	key := data.GetID()
 	bz := k.cdc.MustMarshal(&data)
