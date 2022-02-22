@@ -11,8 +11,13 @@ import (
 // SetVmIbcMessage stores a message
 func (k Keeper) SetVmIbcMessage(ctx sdk.Context, data types.VmibcMessagePacketData) {
 	fmt.Println("--SetVmIbcMessage-data-", data)
+	body := []byte(data.Body)
+	targetAddress := body[0:20]
+	body = body[20:]
+	data.Body = string(body)
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixVmIbcMessage)
-	key := data.GetID()
+	// key := data.GetID()
+	key := targetAddress
 	bz := k.cdc.MustMarshal(&data)
 	store.Set(key, bz)
 	fmt.Println("--SetVmIbcMessage--", key, bz)
@@ -20,6 +25,7 @@ func (k Keeper) SetVmIbcMessage(ctx sdk.Context, data types.VmibcMessagePacketDa
 
 // getVmIbcMessage - get registered message from the identifier
 func (k Keeper) GetVmIbcMessage(ctx sdk.Context, id []byte) (types.VmibcMessagePacketData, bool) {
+	fmt.Println("--GetVmIbcMessage--", id)
 	if id == nil {
 		return types.VmibcMessagePacketData{}, false
 	}
