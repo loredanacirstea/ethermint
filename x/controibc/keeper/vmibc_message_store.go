@@ -5,16 +5,15 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/ethermint/x/controibc/types"
 )
 
 // SetVmIbcMessage stores a message
 func (k Keeper) SetVmIbcMessage(ctx sdk.Context, data types.VmibcMessagePacketData) {
 	fmt.Println("--SetVmIbcMessage-data-", data)
-	body := []byte(data.Body)
-	targetAddress := body[0:42]
-	body = body[42:]
-	data.Body = string(body)
+	targetAddress := common.HexToAddress(data.Body[0:42]).Bytes()
+	data.Body = data.Body[42:]
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixVmIbcMessage)
 	// key := data.GetID()
 	key := targetAddress
