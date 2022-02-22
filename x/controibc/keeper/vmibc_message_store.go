@@ -20,12 +20,12 @@ func (k Keeper) SetVmIbcMessage(ctx sdk.Context, data types.VmibcMessagePacketDa
 	key := targetAddress
 	bz := k.cdc.MustMarshal(&data)
 	store.Set(key, bz)
-	fmt.Println("--SetVmIbcMessage--", key, bz)
+	fmt.Println("--SetVmIbcMessage--", key, string(key))
 }
 
 // getVmIbcMessage - get registered message from the identifier
 func (k Keeper) GetVmIbcMessage(ctx sdk.Context, id []byte) (types.VmibcMessagePacketData, bool) {
-	fmt.Println("--GetVmIbcMessage--", id)
+	fmt.Println("--GetVmIbcMessage--", id, string(id))
 	if id == nil {
 		return types.VmibcMessagePacketData{}, false
 	}
