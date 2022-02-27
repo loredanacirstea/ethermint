@@ -80,8 +80,10 @@ func evmPrecompileInterpret(c *evmPrecompile, evm *vm.EVM, caller vm.ContractRef
 	)
 	encodedResult = append(encodedResult, ret...)
 
-	padding := 32 - len(encodedResult)%32
-	encodedResult = append(encodedResult, make([]byte, padding)...)
+	padding := len(encodedResult) % 32
+	if padding > 0 {
+		encodedResult = append(encodedResult, make([]byte, 32-padding)...)
+	}
 
 	return encodedResult, err
 }
