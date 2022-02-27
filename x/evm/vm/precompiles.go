@@ -38,9 +38,9 @@ func (c *evmPrecompile) Run(evm *vm.EVM, caller vm.ContractRef, input []byte) ([
 	case "96bb50b3": // analyzeFrag(bytes,bytes32[],uint256,uint256)
 		result, err = evmPrecompileAnalyzeFrag(c, evm, caller, callInput)
 	case "349d0211": // part(bytes32,bytes32,bytes,bytes,uint256,uint256)
-		result, err = nil, nil
+		result, err = evmPrecompilePart(c, evm, caller, callInput)
 	case "59e09d70": // partFrag(bytes32,bytes32,bytes,bytes32[],uint256,uint256)
-		result, err = nil, nil
+		result, err = evmPrecompilePartFrag(c, evm, caller, callInput)
 	default:
 		return nil, errors.New("invalid evmPrecompile function")
 	}
@@ -69,7 +69,7 @@ func evmPrecompileInterpret(c *evmPrecompile, evm *vm.EVM, caller vm.ContractRef
 
 	contractAddress := common.HexToAddress("0x0000000000000000000000000000000000000019")
 
-	ret, leftOverGas, err := innerEvm.CallWithBytecode(caller, contractAddress, bytecode, calldata, gas, value, nil)
+	ret, leftOverGas, err := innerEvm.CallWithState(caller, contractAddress, bytecode, calldata, gas, value, nil)
 
 	// TODO leftOverGas
 	fmt.Println("------evmPrecompile--2--", ret, leftOverGas, nil)
@@ -103,7 +103,7 @@ func evmPrecompileAnalyze(c *evmPrecompile, evm *vm.EVM, caller vm.ContractRef, 
 
 	contractAddress := common.HexToAddress("0x0000000000000000000000000000000000000019")
 
-	ret, leftOverGas, err := innerEvm.CallWithBytecode(caller, contractAddress, bytecode, calldata, gas, value, nil)
+	ret, leftOverGas, err := innerEvm.CallWithState(caller, contractAddress, bytecode, calldata, gas, value, nil)
 
 	interpreterContext := innerEvm.Interpreter().InterpretContext
 
@@ -161,12 +161,17 @@ func evmPrecompileAnalyzeFrag(c *evmPrecompile, evm *vm.EVM, caller vm.ContractR
 		}
 		stackData = append(stackData, *elem)
 	}
+	stateContext := &vm.StateContext{
+		StackData: &stackData,
+		ReadHash:  common.BytesToHash(make([]byte, 0)),
+		WriteHash: common.BytesToHash(make([]byte, 0)),
+	}
 
 	innerEvm := vm.NewEVM(evm.Context, evm.TxContext, evm.StateDB, evm.ChainConfig(), evm.Config, evm.Precompiles)
 
 	contractAddress := common.HexToAddress("0x0000000000000000000000000000000000000019")
 
-	_, leftOverGas, err := innerEvm.CallWithBytecode(caller, contractAddress, bytecode, make([]byte, 0), gas, value, &stackData)
+	_, leftOverGas, err := innerEvm.CallWithState(caller, contractAddress, bytecode, make([]byte, 0), gas, value, stateContext)
 
 	interpreterContext := innerEvm.Interpreter().InterpretContext
 
@@ -192,6 +197,115 @@ func evmPrecompileAnalyzeFrag(c *evmPrecompile, evm *vm.EVM, caller vm.ContractR
 		new(big.Int).SetUint64(uint64(224)).FillBytes(make([]byte, 32))...,
 	)
 
+	encodedResult = append(encodedResult,
+		new(big.Int).SetUint64(uint64(len(interpreterContext.Stack))).FillBytes(make([]byte, 32))...,
+	)
+	for i := 0; i < len(interpreterContext.Stack); i++ {
+		value := interpreterContext.Stack[i].Bytes32()
+		encodedResult = append(encodedResult,
+			value[:]...,
+		)
+	}
+
+	return encodedResult, err
+}
+
+// function part(bytes32 readHash, bytes32 writeHash, bytes memory bytecode, bytes memory input, uint256 gas, uint256 value) view external returns(bytes32 newReadHash, bytes32 newWriteHash, bytes memory output);
+func evmPrecompilePart(c *evmPrecompile, evm *vm.EVM, caller vm.ContractRef, input []byte) ([]byte, error) {
+	readHash := common.BytesToHash(input[0:32])
+	writeHash := common.BytesToHash(input[32:64])
+	offsetBytecode := new(big.Int).SetBytes(input[64:96]).Uint64()
+	offsetInput := new(big.Int).SetBytes(input[96:128]).Uint64()
+	gas := new(big.Int).SetBytes(input[128:160]).Uint64()
+	value := new(big.Int).SetBytes(input[160:192])
+
+	bytecodeLength := new(big.Int).SetBytes(input[offsetBytecode : offsetBytecode+32]).Uint64()
+	bytecode := input[offsetBytecode+32 : offsetBytecode+32+bytecodeLength]
+
+	calldataLength := new(big.Int).SetBytes(input[offsetInput : offsetInput+32]).Uint64()
+	calldata := input[offsetInput+32 : offsetInput+32+calldataLength]
+
+	innerEvm := vm.NewEVM(evm.Context, evm.TxContext, evm.StateDB, evm.ChainConfig(), evm.Config, evm.Precompiles)
+
+	contractAddress := common.HexToAddress("0x0000000000000000000000000000000000000019")
+
+	stateContext := &vm.StateContext{
+		ReadHash:  readHash,
+		WriteHash: writeHash,
+	}
+
+	ret, _, err := innerEvm.CallWithState(caller, contractAddress, bytecode, calldata, gas, value, stateContext)
+
+	interpreterContext := innerEvm.Interpreter().InterpretContext
+
+	// bytes32 newReadHash, bytes32 newWriteHash, bytes memory output
+
+	encodedResult := append(
+		interpreterContext.ReadHash.Bytes(),
+		interpreterContext.WriteHash.Bytes()...,
+	)
+	encodedResult = append(encodedResult,
+		new(big.Int).SetUint64(uint64(96)).FillBytes(make([]byte, 32))...,
+	)
+	encodedResult = append(encodedResult,
+		new(big.Int).SetInt64(int64(len(ret))).FillBytes(make([]byte, 32))...,
+	)
+	encodedResult = append(encodedResult, ret...)
+
+	padding := len(encodedResult) % 32
+	if padding > 0 {
+		encodedResult = append(encodedResult, make([]byte, 32-padding)...)
+	}
+
+	return encodedResult, err
+}
+
+// function partFrag(bytes32 readHash, bytes32 writeHash, bytes memory bytecodeFragment, bytes32[] memory stack, uint256 gas, uint256 value) view external returns(bytes32 newReadHash, bytes32 newWriteHash, bytes32[] memory stackOutput);
+func evmPrecompilePartFrag(c *evmPrecompile, evm *vm.EVM, caller vm.ContractRef, input []byte) ([]byte, error) {
+	readHash := common.BytesToHash(input[0:32])
+	writeHash := common.BytesToHash(input[32:64])
+	offsetBytecode := new(big.Int).SetBytes(input[64:96]).Uint64()
+	stackOffset := new(big.Int).SetBytes(input[96:128]).Uint64()
+	gas := new(big.Int).SetBytes(input[128:160]).Uint64()
+	value := new(big.Int).SetBytes(input[160:192])
+
+	bytecodeLength := new(big.Int).SetBytes(input[offsetBytecode : offsetBytecode+32]).Uint64()
+	bytecode := input[offsetBytecode+32 : offsetBytecode+32+bytecodeLength]
+
+	stackCount := new(big.Int).SetBytes(input[stackOffset : stackOffset+32]).Uint64()
+	var stackData []uint256.Int
+	for i := uint64(0); i < stackCount; i++ {
+		offset := stackOffset + 32 + i*32
+		elem, overflow := uint256.FromBig(new(big.Int).SetBytes(input[offset : offset+32]))
+		if overflow {
+			return nil, errors.New("evmPrecompile stack overflow")
+		}
+		stackData = append(stackData, *elem)
+	}
+
+	innerEvm := vm.NewEVM(evm.Context, evm.TxContext, evm.StateDB, evm.ChainConfig(), evm.Config, evm.Precompiles)
+
+	contractAddress := common.HexToAddress("0x0000000000000000000000000000000000000019")
+
+	stateContext := &vm.StateContext{
+		StackData: &stackData,
+		ReadHash:  readHash,
+		WriteHash: writeHash,
+	}
+
+	_, _, err := innerEvm.CallWithState(caller, contractAddress, bytecode, make([]byte, 0), gas, value, stateContext)
+
+	interpreterContext := innerEvm.Interpreter().InterpretContext
+
+	// bytes32 newReadHash, bytes32 newWriteHash, bytes32[] memory stackOutput
+
+	encodedResult := append(
+		interpreterContext.ReadHash.Bytes(),
+		interpreterContext.WriteHash.Bytes()...,
+	)
+	encodedResult = append(encodedResult,
+		new(big.Int).SetUint64(uint64(96)).FillBytes(make([]byte, 32))...,
+	)
 	encodedResult = append(encodedResult,
 		new(big.Int).SetUint64(uint64(len(interpreterContext.Stack))).FillBytes(make([]byte, 32))...,
 	)
