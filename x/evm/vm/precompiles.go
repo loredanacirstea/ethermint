@@ -28,7 +28,7 @@ func (c *evmPrecompile) Run(evm *vm.EVM, caller vm.ContractRef, input []byte) ([
 	var result []byte
 	var err error
 
-	fmt.Println("---evmPrecompile--", signature, callInput)
+	fmt.Println("---evmPrecompile--", signature, common.Bytes2Hex(callInput))
 
 	switch signature {
 	case "2b9416a8": // interpret(bytes,bytes,uint256,uint256)
