@@ -450,6 +450,19 @@ func (s *IntegrationTestSuite) TestGetStorageAt() {
 	s.Require().True(bytes.Equal(expectedStore, storage))
 }
 
+func (s *IntegrationTestSuite) TestOverload() {
+	n := 2
+	var txHashes []common.Hash
+	for i := 0; i < n; i++ {
+		txHash, _ := s.deployTestContract()
+		txHashes = append(txHashes, txHash)
+	}
+	for i := 0; i < n; i++ {
+		_, err := s.network.Validators[0].JSONRPCClient.TransactionReceipt(s.ctx, txHashes[i])
+		s.Require().NoError(err)
+	}
+}
+
 func (s *IntegrationTestSuite) getGasPrice() *big.Int {
 	gasPrice, err := s.network.Validators[0].JSONRPCClient.SuggestGasPrice(s.ctx)
 	s.Require().NoError(err)
