@@ -54,6 +54,7 @@ func (c *ibcPrecompile) Run(evm *vm.EVM, caller vm.ContractRef, input []byte) ([
 		return nil, errors.New("invalid ibcPrecompile function")
 	}
 	if err != nil {
+		fmt.Println("--ibcPrecompile err--", err)
 		return nil, err
 	}
 	encodedResult := append(
@@ -62,8 +63,10 @@ func (c *ibcPrecompile) Run(evm *vm.EVM, caller vm.ContractRef, input []byte) ([
 	)
 	encodedResult = append(encodedResult, result...)
 
-	padding := 32 - len(encodedResult)%32
-	encodedResult = append(encodedResult, make([]byte, padding)...)
+	padding := len(encodedResult) % 32
+	if padding > 0 {
+		encodedResult = append(encodedResult, make([]byte, 32-padding)...)
+	}
 
 	fmt.Println("--ibcPrecompile result--", encodedResult)
 	return encodedResult, err
