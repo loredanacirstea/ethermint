@@ -18,8 +18,8 @@ func TestGenesis(t *testing.T) {
 	}
 
 	k, ctx := keepertest.ControibcKeeper(t)
-	controibc.InitGenesis(ctx, *k, genesisState)
-	got := controibc.ExportGenesis(ctx, *k)
+	controibc.InitGenesis(ctx, k, genesisState)
+	got := controibc.ExportGenesis(ctx, k)
 	require.NotNil(t, got)
 
 	nullify.Fill(&genesisState)

@@ -109,10 +109,11 @@ func sendMessage(c *ibcPrecompile, caller vm.ContractRef, input []byte) ([]byte,
 
 	// channelCap := endpoint.Chain.GetChannelCapability(packet.GetSourcePort(), packet.GetSourceChannel())
 
-	err :=
-		c.vmIbcKeeper.TransmitVmibcMessagePacket(c.ctx, packetData, portId, channelId, timeoutHeight, timeoutTimestamp)
-
-	return []byte("hello"), err
+	err := c.vmIbcKeeper.TransmitVmibcMessagePacket(c.ctx, packetData, portId, channelId, timeoutHeight, timeoutTimestamp)
+	if err != nil {
+		return make([]byte, 32), err
+	}
+	return new(big.Int).SetUint64(uint64(1)).FillBytes(make([]byte, 32)), nil
 }
 
 func getMessage(c *ibcPrecompile, caller vm.ContractRef, input []byte) ([]byte, error) {
