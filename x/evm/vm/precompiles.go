@@ -105,10 +105,10 @@ func sendMessage(c *ibcPrecompile, caller vm.ContractRef, input []byte) ([]byte,
 		// TargetChannelId: channelId,
 		// TargetAddress:   targetAddress.String(),
 		// Timestamp:       uint64(time.Now().Unix()),
-		Body: targetAddress.String() + string(data),
+		Body: targetAddress.String() + common.Bytes2Hex(data)[2:],
 		// Body: "hello",
 	}
-	fmt.Println("---ibcPrecompile-packetData--", packetData)
+	fmt.Println("---ibcPrecompile-packetData--", portId, channelId, timeoutHeight, timeoutTimestamp, packetData)
 
 	// channelCap := endpoint.Chain.GetChannelCapability(packet.GetSourcePort(), packet.GetSourceChannel())
 
@@ -124,7 +124,8 @@ func getMessage(c *ibcPrecompile, caller vm.ContractRef, input []byte) ([]byte, 
 	if !success {
 		return nil, errors.New("message not found")
 	}
-	return []byte(msg.Body), nil
+	content := common.Hex2Bytes(msg.Body)
+	return content, nil
 }
 
 func countMessages(c *ibcPrecompile, caller vm.ContractRef, input []byte) ([]byte, error) {
