@@ -89,6 +89,8 @@ func sendMessage(c *ibcPrecompile, caller vm.ContractRef, input []byte) ([]byte,
 	dataEnd := new(big.Int).SetBytes(input[dataOffset : dataOffset+32]).Uint64()
 	data := input[dataOffset+32 : dataOffset+32+dataEnd]
 
+	fmt.Println("---data", common.Bytes2Hex(data))
+
 	// 60sec
 	timeoutTimestamp := uint64(time.Now().UnixNano() + 60*1000000000)
 	// currentHeight := clienttypes.GetSelfHeight(c.ctx)
@@ -105,7 +107,7 @@ func sendMessage(c *ibcPrecompile, caller vm.ContractRef, input []byte) ([]byte,
 		// TargetChannelId: channelId,
 		// TargetAddress:   targetAddress.String(),
 		// Timestamp:       uint64(time.Now().Unix()),
-		Body: targetAddress.String() + common.Bytes2Hex(data)[2:],
+		Body: targetAddress.String() + common.Bytes2Hex(data),
 		// Body: "hello",
 	}
 	fmt.Println("---ibcPrecompile-packetData--", portId, channelId, timeoutHeight, timeoutTimestamp, packetData)
@@ -114,6 +116,7 @@ func sendMessage(c *ibcPrecompile, caller vm.ContractRef, input []byte) ([]byte,
 
 	err := c.vmIbcKeeper.TransmitVmibcMessagePacket(c.ctx, packetData, portId, channelId, timeoutHeight, timeoutTimestamp)
 	if err != nil {
+		fmt.Println("---------err---", err)
 		return make([]byte, 32), err
 	}
 	return new(big.Int).SetUint64(uint64(1)).FillBytes(make([]byte, 32)), nil
@@ -125,6 +128,7 @@ func getMessage(c *ibcPrecompile, caller vm.ContractRef, input []byte) ([]byte, 
 		return nil, errors.New("message not found")
 	}
 	content := common.Hex2Bytes(msg.Body)
+	fmt.Println("---------getMessage--", msg.Body)
 	return content, nil
 }
 
