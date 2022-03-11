@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"errors"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -47,6 +48,7 @@ func (k Keeper) TransmitVmibcMessagePacket(
 	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, "cannot marshal the packet: "+err.Error())
 	}
+	fmt.Println("---------packetBytes---", packetBytes)
 
 	packet := channeltypes.NewPacket(
 		packetBytes,
@@ -83,6 +85,7 @@ func (k Keeper) TransmitVmibcMessagePacket(
 
 // OnRecvVmibcMessagePacket processes packet reception
 func (k Keeper) OnRecvVmibcMessagePacket(ctx sdk.Context, packet channeltypes.Packet, data types.VmibcMessagePacketData) (packetAck types.VmibcMessagePacketAck, err error) {
+	fmt.Println("----------OnRecvVmibcMessagePacket-------")
 	// validate packet data upon receiving
 	if err := data.ValidateBasic(); err != nil {
 		return packetAck, err
@@ -97,6 +100,7 @@ func (k Keeper) OnRecvVmibcMessagePacket(ctx sdk.Context, packet channeltypes.Pa
 // OnAcknowledgementVmibcMessagePacket responds to the the success or failure of a packet
 // acknowledgement written on the receiving chain.
 func (k Keeper) OnAcknowledgementVmibcMessagePacket(ctx sdk.Context, packet channeltypes.Packet, data types.VmibcMessagePacketData, ack channeltypes.Acknowledgement) error {
+	fmt.Println("----------OnAcknowledgementVmibcMessagePacket-------")
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
 
@@ -126,6 +130,7 @@ func (k Keeper) OnAcknowledgementVmibcMessagePacket(ctx sdk.Context, packet chan
 func (k Keeper) OnTimeoutVmibcMessagePacket(ctx sdk.Context, packet channeltypes.Packet, data types.VmibcMessagePacketData) error {
 
 	// TODO: packet timeout logic
+	fmt.Println("----------OnTimeoutVmibcMessagePacket-------")
 
 	return nil
 }

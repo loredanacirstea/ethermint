@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"strings"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -44,17 +45,17 @@ func (c *ibcPrecompile) Run(evm *vm.EVM, caller vm.ContractRef, input []byte) ([
 	fmt.Println("---ibcPrecompile-Run--", signature, callInput)
 
 	switch signature {
-	case "1fe143a5": // sendMessage(string,string,address,bytes)
+	case "2bf33ec4": // sendMessage(string,string,address,bytes)
 		result, err = sendMessage(c, caller, callInput)
-	case "cf68263a": // getMessage(string,string,address,uint256)
+	case "0cbfe215": // getMessage(string,string,address,uint256)
 		result, err = getMessage(c, caller, callInput)
-	case "e161b98f": // countMessages(string,string,address)
+	case "5c8ecf8b": // countMessages(string,string,address)
 		result, err = countMessages(c, caller, callInput)
 	default:
 		return nil, errors.New("invalid ibcPrecompile function")
 	}
+	fmt.Println("--ibcPrecompile result--", result, err)
 	if err != nil {
-		fmt.Println("--ibcPrecompile err--", err)
 		return nil, err
 	}
 	encodedResult := append(
@@ -75,19 +76,33 @@ func (c *ibcPrecompile) Run(evm *vm.EVM, caller vm.ContractRef, input []byte) ([
 // function sendMessage(string memory portId, string memory channelId, address target, bytes memory data) external returns(bool success);
 
 func sendMessage(c *ibcPrecompile, caller vm.ContractRef, input []byte) ([]byte, error) {
-	portOffset := new(big.Int).SetBytes(input[0:32]).Uint64()
-	channelOffset := new(big.Int).SetBytes(input[32:64]).Uint64()
+	// portOffset := new(big.Int).SetBytes(input[0:32]).Uint64()
+	// channelOffset := new(big.Int).SetBytes(input[32:64]).Uint64()
+	// targetAddress := common.BytesToAddress(input[64:96])
+	// dataOffset := new(big.Int).SetBytes(input[96:128]).Uint64()
+
+	// portEnd := new(big.Int).SetBytes(input[portOffset : portOffset+32]).Uint64()
+	// portId := string(input[portOffset+32 : portOffset+32+portEnd])
+
+	// channelEnd := new(big.Int).SetBytes(input[channelOffset : channelOffset+32]).Uint64()
+	// channelId := string(input[channelOffset+32 : channelOffset+32+channelEnd])
+
+	// dataEnd := new(big.Int).SetBytes(input[dataOffset : dataOffset+32]).Uint64()
+	// data := input[dataOffset+32 : dataOffset+32+dataEnd]
+
+	fmt.Println("---input", common.Bytes2Hex(input))
+
+	portId := strings.TrimSpace(string(common.TrimRightZeroes(input[0:32])))
+	fmt.Println("---portId", portId, len(portId))
+	channelId := strings.TrimSpace(string(common.TrimRightZeroes(input[32:64])))
+	fmt.Println("---channelId", channelId, len(channelId))
 	targetAddress := common.BytesToAddress(input[64:96])
-	dataOffset := new(big.Int).SetBytes(input[96:128]).Uint64()
-
-	portEnd := new(big.Int).SetBytes(input[portOffset : portOffset+32]).Uint64()
-	portId := string(input[portOffset+32 : portOffset+32+portEnd])
-
-	channelEnd := new(big.Int).SetBytes(input[channelOffset : channelOffset+32]).Uint64()
-	channelId := string(input[channelOffset+32 : channelOffset+32+channelEnd])
-
-	dataEnd := new(big.Int).SetBytes(input[dataOffset : dataOffset+32]).Uint64()
-	data := input[dataOffset+32 : dataOffset+32+dataEnd]
+	fmt.Println("---targetAddress", targetAddress)
+	dataLen := new(big.Int).SetBytes(input[96:128]).Uint64()
+	fmt.Println("---dataLen", dataLen)
+	dataLen2 := new(big.Int).SetBytes(input[160:192]).Uint64()
+	fmt.Println("---dataLen2", dataLen2)
+	data := input[192 : 192+dataLen2]
 
 	fmt.Println("---data", common.Bytes2Hex(data))
 
@@ -107,27 +122,41 @@ func sendMessage(c *ibcPrecompile, caller vm.ContractRef, input []byte) ([]byte,
 		// TargetChannelId: channelId,
 		// TargetAddress:   targetAddress.String(),
 		// Timestamp:       uint64(time.Now().Unix()),
-		Body: targetAddress.String() + common.Bytes2Hex(data),
+		// Body: targetAddress.String()[2:] + common.Bytes2Hex(data),
+		Body: targetAddress.String()[2:] + string(data),
 		// Body: "hello",
 	}
-	fmt.Println("---ibcPrecompile-packetData--", portId, channelId, timeoutHeight, timeoutTimestamp, packetData)
+	fmt.Println("---ibcPrecompile-packetData--", portId, channelId, timeoutHeight, timeoutTimestamp, targetAddress.String(), common.Bytes2Hex(data), packetData)
 
 	// channelCap := endpoint.Chain.GetChannelCapability(packet.GetSourcePort(), packet.GetSourceChannel())
 
 	err := c.vmIbcKeeper.TransmitVmibcMessagePacket(c.ctx, packetData, portId, channelId, timeoutHeight, timeoutTimestamp)
+	fmt.Println("---------err---", err)
 	if err != nil {
-		fmt.Println("---------err---", err)
-		return make([]byte, 32), err
+		// return make([]byte, 32), err
+		return make([]byte, 32), nil
 	}
 	return new(big.Int).SetUint64(uint64(1)).FillBytes(make([]byte, 32)), nil
 }
 
 func getMessage(c *ibcPrecompile, caller vm.ContractRef, input []byte) ([]byte, error) {
-	msg, success := c.vmIbcKeeper.GetVmIbcMessage(c.ctx, caller.Address().Bytes())
+	fmt.Println("---caller.Address()---", caller.Address().Hex())
+
+	fmt.Println("---input", common.Bytes2Hex(input))
+
+	portId := strings.TrimSpace(string(common.TrimRightZeroes(input[0:32])))
+	fmt.Println("---portId", portId, len(portId))
+	channelId := strings.TrimSpace(string(common.TrimRightZeroes(input[32:64])))
+	fmt.Println("---channelId", channelId, len(channelId))
+	sourceAddress := common.BytesToAddress(input[64:96])
+	fmt.Println("---sourceAddress", sourceAddress)
+
+	msg, success := c.vmIbcKeeper.GetVmIbcMessage(c.ctx, sourceAddress.Bytes())
 	if !success {
-		return nil, errors.New("message not found")
+		return nil, nil
 	}
-	content := common.Hex2Bytes(msg.Body)
+	// content := common.Hex2Bytes(msg.Body)
+	content := []byte(msg.Body)
 	fmt.Println("---------getMessage--", msg.Body)
 	return content, nil
 }
