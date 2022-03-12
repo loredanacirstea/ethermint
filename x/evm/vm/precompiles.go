@@ -122,8 +122,8 @@ func sendMessage(c *ibcPrecompile, caller vm.ContractRef, input []byte) ([]byte,
 		// TargetChannelId: channelId,
 		// TargetAddress:   targetAddress.String(),
 		// Timestamp:       uint64(time.Now().Unix()),
-		// Body: targetAddress.String()[2:] + common.Bytes2Hex(data),
-		Body: targetAddress.String()[2:] + string(data),
+		Body: targetAddress.String()[2:] + common.Bytes2Hex(data),
+		// Body: targetAddress.String()[2:] + string(data),
 		// Body: "hello",
 	}
 	fmt.Println("---ibcPrecompile-packetData--", portId, channelId, timeoutHeight, timeoutTimestamp, targetAddress.String(), common.Bytes2Hex(data), packetData)
@@ -155,8 +155,8 @@ func getMessage(c *ibcPrecompile, caller vm.ContractRef, input []byte) ([]byte, 
 	if !success {
 		return nil, nil
 	}
-	// content := common.Hex2Bytes(msg.Body)
-	content := []byte(msg.Body)
+	content := common.Hex2Bytes(msg.Body)
+	// content := []byte(msg.Body)
 	fmt.Println("---------getMessage--", msg.Body)
 	return content, nil
 }
