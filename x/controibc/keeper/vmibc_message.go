@@ -2,12 +2,13 @@ package keeper
 
 import (
 	"errors"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	clienttypes "github.com/cosmos/ibc-go/v2/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v2/modules/core/04-channel/types"
-	host "github.com/cosmos/ibc-go/v2/modules/core/24-host"
+	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
+	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	"github.com/tharsis/ethermint/x/controibc/types"
 )
 
@@ -47,6 +48,7 @@ func (k Keeper) TransmitVmibcMessagePacket(
 	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, "cannot marshal the packet: "+err.Error())
 	}
+	fmt.Println("---------packetBytes---", packetBytes)
 
 	packet := channeltypes.NewPacket(
 		packetBytes,
@@ -59,7 +61,22 @@ func (k Keeper) TransmitVmibcMessagePacket(
 		timeoutTimestamp,
 	)
 
-	if err := k.ChannelKeeper.SendPacket(ctx, channelCap, packet); err != nil {
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeVmibcMessagePacket,
+			sdk.NewAttribute(sdk.AttributeKeySender, "sender1"),
+			// sdk.NewAttribute(types.AttributeKeyReceiver, msg.Receiver),
+			sdk.NewAttribute("receiver", "receiver1"),
+		),
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, channeltypes.AttributeValueCategory),
+		),
+	})
+
+	err = k.ics4Wrapper.SendPacket(ctx, channelCap, packet)
+
+	if err != nil {
 		return err
 	}
 
@@ -68,12 +85,14 @@ func (k Keeper) TransmitVmibcMessagePacket(
 
 // OnRecvVmibcMessagePacket processes packet reception
 func (k Keeper) OnRecvVmibcMessagePacket(ctx sdk.Context, packet channeltypes.Packet, data types.VmibcMessagePacketData) (packetAck types.VmibcMessagePacketAck, err error) {
+	fmt.Println("----------OnRecvVmibcMessagePacket-------")
 	// validate packet data upon receiving
 	if err := data.ValidateBasic(); err != nil {
 		return packetAck, err
 	}
 
 	// TODO: packet reception logic
+	k.SetVmIbcMessage(ctx, data)
 
 	return packetAck, nil
 }
@@ -81,6 +100,7 @@ func (k Keeper) OnRecvVmibcMessagePacket(ctx sdk.Context, packet channeltypes.Pa
 // OnAcknowledgementVmibcMessagePacket responds to the the success or failure of a packet
 // acknowledgement written on the receiving chain.
 func (k Keeper) OnAcknowledgementVmibcMessagePacket(ctx sdk.Context, packet channeltypes.Packet, data types.VmibcMessagePacketData, ack channeltypes.Acknowledgement) error {
+	fmt.Println("----------OnAcknowledgementVmibcMessagePacket-------")
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
 
@@ -110,6 +130,7 @@ func (k Keeper) OnAcknowledgementVmibcMessagePacket(ctx sdk.Context, packet chan
 func (k Keeper) OnTimeoutVmibcMessagePacket(ctx sdk.Context, packet channeltypes.Packet, data types.VmibcMessagePacketData) error {
 
 	// TODO: packet timeout logic
+	fmt.Println("----------OnTimeoutVmibcMessagePacket-------")
 
 	return nil
 }

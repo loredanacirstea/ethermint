@@ -96,9 +96,9 @@ func (k *Keeper) NewEVM(
 
 	vmConfig := k.VMConfig(ctx, msg, cfg, tracer)
 
-	precompiles := vm.GetPrecompiles(cfg.ChainConfig.Rules(blockCtx.BlockNumber))
+	precompiles := vm.GetPrecompiles(cfg.ChainConfig.Rules(blockCtx.BlockNumber, cfg.ChainConfig.MergeForkBlock != nil))
 
-	for k, v := range extendedVM.PrecompiledContracts {
+	for k, v := range extendedVM.GetPrecompiles(ctx, k.vmIbcKeeper) {
 		precompiles[k] = v
 	}
 
