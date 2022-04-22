@@ -23,10 +23,13 @@ var _ types.MsgServer = &Keeper{}
 // parameter.
 func (k *Keeper) EthereumTx(goCtx context.Context, msg *types.MsgEthereumTx) (*types.MsgEthereumTxResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	fmt.Println("---EthereumTx--", msg.From, msg.Hash, msg.Data.String())
 
 	sender := msg.From
 	tx := msg.AsTransaction()
 	txIndex := k.GetTxIndexTransient(ctx)
+
+	fmt.Println("---EthereumTx--", tx.Data())
 
 	response, err := k.ApplyTransaction(ctx, tx)
 	if err != nil {

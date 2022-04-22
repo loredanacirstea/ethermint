@@ -2,6 +2,7 @@ package ante
 
 import (
 	"errors"
+	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -92,7 +93,7 @@ func (avd EthAccountVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx
 	if !ctx.IsCheckTx() {
 		return next(ctx, tx, simulate)
 	}
-
+	fmt.Println("------EthAccountVerificationDecorator")
 	for i, msg := range tx.GetMsgs() {
 		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
 		if !ok {
@@ -103,9 +104,11 @@ func (avd EthAccountVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx
 		if err != nil {
 			return ctx, sdkerrors.Wrapf(err, "failed to unpack tx data any for tx %d", i)
 		}
+		fmt.Println("------EthAccountVerificationDecorator", txData)
 
 		// sender address should be in the tx cache from the previous AnteHandle call
 		from := msgEthTx.GetFrom()
+		fmt.Println("------EthAccountVerificationDecorator from", from)
 		if from.Empty() {
 			return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "from address cannot be empty")
 		}
@@ -113,6 +116,7 @@ func (avd EthAccountVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx
 		// check whether the sender address is EOA
 		fromAddr := common.BytesToAddress(from)
 		acct := avd.evmKeeper.GetAccount(ctx, fromAddr)
+		fmt.Println("------EthAccountVerificationDecorator acct", acct)
 
 		if acct == nil {
 			acc := avd.ak.NewAccountWithAddress(ctx, from)
@@ -256,7 +260,7 @@ func (ctd CanTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 	params := ctd.evmKeeper.GetParams(ctx)
 	ethCfg := params.ChainConfig.EthereumConfig(ctd.evmKeeper.ChainID())
 	signer := ethtypes.MakeSigner(ethCfg, big.NewInt(ctx.BlockHeight()))
-
+	fmt.Println("-----CanTransferDecorator")
 	for _, msg := range tx.GetMsgs() {
 		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
 		if !ok {
@@ -272,6 +276,7 @@ func (ctd CanTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 				"failed to create an ethereum core.Message from signer %T", signer,
 			)
 		}
+		fmt.Println("-----CanTransferDecorator", coreMsg)
 
 		// NOTE: pass in an empty coinbase address and nil tracer as we don't need them for the check below
 		cfg := &evmtypes.EVMConfig{
@@ -330,6 +335,7 @@ func NewEthIncrementSenderSequenceDecorator(ak evmtypes.AccountKeeper) EthIncrem
 // contract creation, the nonce will be incremented during the transaction execution and not within
 // this AnteHandler decorator.
 func (issd EthIncrementSenderSequenceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
+	fmt.Println("----EthIncrementSenderSequenceDecorator")
 	for _, msg := range tx.GetMsgs() {
 		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
 		if !ok {
@@ -340,6 +346,7 @@ func (issd EthIncrementSenderSequenceDecorator) AnteHandle(ctx sdk.Context, tx s
 		if err != nil {
 			return ctx, sdkerrors.Wrap(err, "failed to unpack tx data")
 		}
+		fmt.Println("----EthIncrementSenderSequenceDecorator", txData)
 
 		// increase sequence of sender
 		acc := issd.ak.GetAccount(ctx, msgEthTx.GetFrom())
@@ -388,6 +395,7 @@ func (vbd EthValidateBasicDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simu
 	if ctx.IsReCheckTx() {
 		return next(ctx, tx, simulate)
 	}
+	fmt.Println("----EthValidateBasicDecorator")
 
 	err := tx.ValidateBasic()
 	// ErrNoSignatures is fine with eth tx
@@ -423,6 +431,7 @@ func (vbd EthValidateBasicDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simu
 			if err != nil {
 				return ctx, sdkerrors.Wrap(err, "failed to unpack MsgEthereumTx Data")
 			}
+			fmt.Println("-------EthValidateBasicDecorator", txData)
 
 			params := vbd.evmKeeper.GetParams(ctx)
 			chainID := vbd.evmKeeper.ChainID()
@@ -509,6 +518,7 @@ func NewEthMempoolFeeDecorator(ek EVMKeeper) EthMempoolFeeDecorator {
 // It only do the check if london hardfork not enabled or feemarket not enabled, because in that case feemarket will take over the task.
 func (mfd EthMempoolFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	if ctx.IsCheckTx() && !simulate {
+		fmt.Println("------EthMempoolFeeDecorator")
 		params := mfd.evmKeeper.GetParams(ctx)
 		ethCfg := params.ChainConfig.EthereumConfig(mfd.evmKeeper.ChainID())
 		baseFee := mfd.evmKeeper.BaseFee(ctx, ethCfg)
@@ -518,6 +528,7 @@ func (mfd EthMempoolFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 				if !ok {
 					return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*evmtypes.MsgEthereumTx)(nil))
 				}
+				fmt.Println("------EthMempoolFeeDecorator", ethMsg)
 
 				evmDenom := params.EvmDenom
 				feeAmt := ethMsg.GetFee()

@@ -1,6 +1,8 @@
 package inter_tx
 
 import (
+	"fmt"
+
 	"github.com/ethereum/go-ethereum/common"
 	proto "github.com/gogo/protobuf/proto"
 
@@ -105,6 +107,7 @@ func (im IBCModule) OnRecvPacket(
 	packet channeltypes.Packet,
 	relayer sdk.AccAddress,
 ) ibcexported.Acknowledgement {
+	fmt.Println("----OnRecvPacket----")
 	return channeltypes.NewErrorAcknowledgement("cannot receive packet via interchain accounts authentication module")
 }
 
@@ -115,6 +118,7 @@ func (im IBCModule) OnAcknowledgementPacket(
 	acknowledgement []byte,
 	relayer sdk.AccAddress,
 ) error {
+	fmt.Println("----OnAcknowledgementPacket----")
 	var ack channeltypes.Acknowledgement
 	if err := channeltypes.SubModuleCdc.UnmarshalJSON(acknowledgement, &ack); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-27 packet acknowledgement: %v", err)
@@ -124,6 +128,7 @@ func (im IBCModule) OnAcknowledgementPacket(
 	if err := proto.Unmarshal(ack.GetResult(), txMsgData); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-27 tx message data: %v", err)
 	}
+	fmt.Println("----OnAcknowledgementPacket--txMsgData--", txMsgData)
 
 	switch len(txMsgData.Data) {
 	case 0:
@@ -164,6 +169,7 @@ func (im IBCModule) NegotiateAppVersion(
 }
 
 func (im IBCModule) handleMsgData(ctx sdk.Context, msgData *sdk.MsgData) (string, error) {
+	fmt.Println("----handleMsgData----", msgData)
 	switch msgData.MsgType {
 	case sdk.MsgTypeURL(&banktypes.MsgSend{}):
 		msgResponse := &banktypes.MsgSendResponse{}
