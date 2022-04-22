@@ -15,7 +15,11 @@ import (
 // InterchainAccountFromAddress implements the Query/InterchainAccountFromAddress gRPC method
 func (k Keeper) InterchainAccountFromAddress(goCtx context.Context, req *types.QueryInterchainAccountFromAddressRequest) (*types.QueryInterchainAccountFromAddressResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	return k.InterchainAccountFromAddressInner(ctx, req)
+}
 
+// InterchainAccountFromAddressInner implements the Query/InterchainAccountFromAddress gRPC method
+func (k Keeper) InterchainAccountFromAddressInner(ctx sdk.Context, req *types.QueryInterchainAccountFromAddressRequest) (*types.QueryInterchainAccountFromAddressResponse, error) {
 	portID, err := icatypes.NewControllerPortID(req.Owner)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "could not find account: %s", err)

@@ -101,7 +101,7 @@ func (k *Keeper) NewEVM(
 		cfg.ChainConfig.MergeForkBlock != nil,
 	))
 
-	for k, v := range extendedVM.PrecompiledContracts {
+	for k, v := range extendedVM.GetPrecompiles(ctx, k.intertxKeeper) {
 		precompiles[k] = v
 	}
 

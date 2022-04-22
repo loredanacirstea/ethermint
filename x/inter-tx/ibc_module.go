@@ -1,6 +1,7 @@
 package inter_tx
 
 import (
+	"github.com/ethereum/go-ethereum/common"
 	proto "github.com/gogo/protobuf/proto"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -13,6 +14,7 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
 	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	ibcexported "github.com/cosmos/ibc-go/v3/modules/core/exported"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 )
 
 var _ porttypes.IBCModule = IBCModule{}
@@ -129,7 +131,7 @@ func (im IBCModule) OnAcknowledgementPacket(
 		return nil
 	default:
 		for _, msgData := range txMsgData.Data {
-			response, err := handleMsgData(ctx, msgData)
+			response, err := im.handleMsgData(ctx, msgData)
 			if err != nil {
 				return err
 			}
@@ -161,7 +163,7 @@ func (im IBCModule) NegotiateAppVersion(
 	return "", nil
 }
 
-func handleMsgData(ctx sdk.Context, msgData *sdk.MsgData) (string, error) {
+func (im IBCModule) handleMsgData(ctx sdk.Context, msgData *sdk.MsgData) (string, error) {
 	switch msgData.MsgType {
 	case sdk.MsgTypeURL(&banktypes.MsgSend{}):
 		msgResponse := &banktypes.MsgSendResponse{}
@@ -171,7 +173,20 @@ func handleMsgData(ctx sdk.Context, msgData *sdk.MsgData) (string, error) {
 
 		return msgResponse.String(), nil
 
-	// TODO: handle other messages
+	case evmtypes.TypeMsgEthereumTx:
+		msgResponse := &evmtypes.MsgEthereumTxResponse{}
+		if err := proto.Unmarshal(msgData.Data, msgResponse); err != nil {
+			return "", sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "cannot unmarshal send response message: %s", err.Error())
+		}
+		// if txKey exists, store response and error
+		txKey := common.Hex2Bytes(msgResponse.Hash)
+		if im.keeper.GetResponse(ctx, txKey) != nil {
+			// TODO provide entire message, with logs, txhash ?
+			im.keeper.SetResponse(ctx, txKey, msgResponse.Ret)
+			im.keeper.SetError(ctx, txKey, msgResponse.VmError)
+		}
+
+		return msgResponse.String(), nil
 
 	default:
 		return "", nil

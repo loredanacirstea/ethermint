@@ -10,6 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+	intertxtypes "github.com/tharsis/ethermint/x/inter-tx/types"
 )
 
 // AccountKeeper defines the expected account keeper interface
@@ -45,6 +46,14 @@ type StakingKeeper interface {
 type FeeMarketKeeper interface {
 	GetBaseFee(ctx sdk.Context) *big.Int
 	GetParams(ctx sdk.Context) feemarkettypes.Params
+}
+
+type InterTxKeeper interface {
+	GetResponse(ctx sdk.Context, txKey []byte) []byte
+	GetError(ctx sdk.Context, txKey []byte) []byte
+	SubmitTx(ctx sdk.Context, msg *intertxtypes.MsgSubmitTx) (*intertxtypes.MsgSubmitTxResponse, error)
+	InterchainAccountFromAddressInner(ctx sdk.Context, req *intertxtypes.QueryInterchainAccountFromAddressRequest) (*intertxtypes.QueryInterchainAccountFromAddressResponse, error)
+	RegisterAccount(ctx sdk.Context, msg *intertxtypes.MsgRegisterAccount) (*intertxtypes.MsgRegisterAccountResponse, error)
 }
 
 // Event Hooks
