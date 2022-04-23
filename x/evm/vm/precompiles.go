@@ -68,31 +68,31 @@ func emitTx(evm *vm.EVM, c *ICAPrecompile, caller vm.ContractRef, input []byte) 
 	fmt.Println("----emitTx----", input)
 	owner := sdk.AccAddress(caller.Address().Bytes())
 	fmt.Println("----emitTx-owner---", owner, owner.String())
-	// req := &intertxtypes.QueryInterchainAccountFromAddressRequest{
-	// 	Owner:        owner.String(),
-	// 	ConnectionId: "connection-0",
-	// }
-	// fmt.Println("----emitTx-req---", req)
-	// icaRes, err := c.intertxKeeper.InterchainAccountFromAddressInner(c.ctx, req)
-	// fmt.Println("----InterchainAccountFromAddress----", icaRes, err)
-	// if err != nil {
-	// 	msgRegister := &intertxtypes.MsgRegisterAccount{
-	// 		Owner:        req.Owner,
-	// 		ConnectionId: req.ConnectionId,
-	// 	}
-	// 	_, err := c.intertxKeeper.RegisterAccount(c.ctx, msgRegister)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	fmt.Println("----RegisterAccount----", err)
-	// 	icaRes, err = c.intertxKeeper.InterchainAccountFromAddressInner(c.ctx, req)
-	// 	fmt.Println("----InterchainAccountFromAddress2----", icaRes, err)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// }
-	// ica := icaRes.InterchainAccountAddress
-	// fmt.Println("----ica----", ica)
+	req := &intertxtypes.QueryInterchainAccountFromAddressRequest{
+		Owner:        owner.String(),
+		ConnectionId: "connection-0",
+	}
+	fmt.Println("----emitTx-req---", req)
+	icaRes, err := c.intertxKeeper.InterchainAccountFromAddressInner(c.ctx, req)
+	fmt.Println("----InterchainAccountFromAddress----", icaRes, err)
+	if err != nil {
+		msgRegister := &intertxtypes.MsgRegisterAccount{
+			Owner:        req.Owner,
+			ConnectionId: req.ConnectionId,
+		}
+		_, err := c.intertxKeeper.RegisterAccount(c.ctx, msgRegister)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println("----RegisterAccount----", err)
+		icaRes, err = c.intertxKeeper.InterchainAccountFromAddressInner(c.ctx, req)
+		fmt.Println("----InterchainAccountFromAddress2----", icaRes, err)
+		if err != nil {
+			return nil, err
+		}
+	}
+	ica := icaRes.InterchainAccountAddress
+	fmt.Println("----ica----", ica)
 	nonce := uint64(0)
 	value := big.NewInt(0)
 	to := common.BytesToAddress(caller.Address().Bytes())
@@ -102,7 +102,16 @@ func emitTx(evm *vm.EVM, c *ICAPrecompile, caller vm.ContractRef, input []byte) 
 	gasTipCap := big.NewInt(20)
 	data := make([]byte, 0)
 	accesses := &ethtypes.AccessList{}
-	ethtx := types.NewTx(evm.ChainConfig().ChainID, nonce, &to, value, gasLimit, gasPrice, gasFeeCap, gasTipCap, data, accesses)
+	ethtx := types.NewIcaTx(evm.ChainConfig().ChainID, nonce, &to, value, gasLimit, gasPrice, gasFeeCap, gasTipCap, data, accesses)
+
+	// ethicatx := (*types.MsgEthereumIcaTx)(ethtx)
+	// ethicatx := (*types.MsgEthereumIcaTx)(*ethtx.(*types.MsgEthereumTx))
+
+	icaAddr, err := sdk.AccAddressFromBech32(ica)
+	fmt.Println("ethtx.From", icaAddr, err)
+	ethtx.From = common.BytesToAddress(icaAddr.Bytes()).Hex()
+	fmt.Println("ethtx.From", ethtx.From)
+
 	msg, err := intertxtypes.NewMsgSubmitTx(ethtx, "connection-0", owner.String())
 	if err != nil {
 		return nil, err
