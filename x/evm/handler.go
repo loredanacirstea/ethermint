@@ -1,6 +1,8 @@
 package evm
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -11,6 +13,7 @@ import (
 func NewHandler(server types.MsgServer) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (result *sdk.Result, err error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
+		fmt.Println("------ethermint evm handler------", msg.String())
 
 		switch msg := msg.(type) {
 		case *types.MsgEthereumTx:

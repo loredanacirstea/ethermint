@@ -58,35 +58,44 @@ func (k Keeper) RegisterAccount(ctx sdk.Context, msg *types.MsgRegisterAccount) 
 
 // SubmitTx implements the Msg/SubmitTx interface
 func (k Keeper) SubmitTx(ctx sdk.Context, msg *types.MsgSubmitTx) (*types.MsgSubmitTxResponse, error) {
+	fmt.Println("-----SubmitTx----")
 	portID, err := icatypes.NewControllerPortID(msg.Owner)
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("-----SubmitTx-portID---", portID)
 
 	channelID, found := k.icaControllerKeeper.GetActiveChannelID(ctx, msg.ConnectionId, portID)
 	if !found {
 		return nil, sdkerrors.Wrapf(icatypes.ErrActiveChannelNotFound, "failed to retrieve active channel for port %s", portID)
 	}
+	fmt.Println("-----SubmitTx-channelID---", channelID)
 
 	chanCap, found := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(portID, channelID))
 	if !found {
 		return nil, sdkerrors.Wrap(channeltypes.ErrChannelCapabilityNotFound, "module does not own channel capability")
 	}
+	fmt.Println("-----SubmitTx-chanCap---", chanCap)
+	fmt.Println("-----SubmitTx-msg.GetTxMsg()---", msg.GetTxMsg())
 
 	data, err := icatypes.SerializeCosmosTx(k.cdc, []sdk.Msg{msg.GetTxMsg()})
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("-----SubmitTx-data---", data)
 
 	packetData := icatypes.InterchainAccountPacketData{
 		Type: icatypes.EXECUTE_TX,
 		Data: data,
 	}
+	fmt.Println("-----SubmitTx-packetData---", packetData)
 
 	// timeoutTimestamp set to max value with the unsigned bit shifted to sastisfy hermes timestamp conversion
 	// it is the responsibility of the auth module developer to ensure an appropriate timeout timestamp
 	timeoutTimestamp := time.Now().Add(time.Minute).UnixNano()
-	_, err = k.icaControllerKeeper.SendTx(ctx, chanCap, msg.ConnectionId, portID, packetData, uint64(timeoutTimestamp))
+	res, err := k.icaControllerKeeper.SendTx(ctx, chanCap, msg.ConnectionId, portID, packetData, uint64(timeoutTimestamp))
+	fmt.Println("-----SubmitTx-SendTx--err-", err)
+	fmt.Println("-----SubmitTx-SendTx--res-", res)
 	if err != nil {
 		return nil, err
 	}

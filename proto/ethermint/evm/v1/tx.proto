@@ -35,6 +35,24 @@ message MsgEthereumTx {
   string from = 4;
 }
 
+// MsgEthereumIcaTx same as MsgEthereumTx.
+message MsgEthereumIcaTx {
+  option (gogoproto.goproto_getters) = false;
+
+  // inner transaction data
+  google.protobuf.Any data = 1;
+  // caches
+
+  // encoded storage size of the transaction
+  double size = 2 [ (gogoproto.jsontag) = "-" ];
+  // transaction hash in hex format
+  string hash = 3 [ (gogoproto.moretags) = "rlp:\"-\"" ];
+  // ethereum signer address in hex format. This address value is checked
+  // against the address derived from the signature (V, R, S) using the
+  // secp256k1 elliptic curve
+  string from = 4;
+}
+
 // LegacyTx is the transaction data of regular Ethereum transactions.
 message LegacyTx {
   option (gogoproto.goproto_getters) = false;
