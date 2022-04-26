@@ -1,6 +1,7 @@
 package types
 
 import (
+	context "context"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -51,9 +52,9 @@ type FeeMarketKeeper interface {
 type InterTxKeeper interface {
 	GetResponse(ctx sdk.Context, txKey []byte) []byte
 	GetError(ctx sdk.Context, txKey []byte) []byte
-	SubmitTx(ctx sdk.Context, msg *intertxtypes.MsgSubmitTx) (*intertxtypes.MsgSubmitTxResponse, error)
-	InterchainAccountFromAddressInner(ctx sdk.Context, req *intertxtypes.QueryInterchainAccountFromAddressRequest) (*intertxtypes.QueryInterchainAccountFromAddressResponse, error)
-	RegisterAccount(ctx sdk.Context, msg *intertxtypes.MsgRegisterAccount) (*intertxtypes.MsgRegisterAccountResponse, error)
+	InterchainAccountFromAddress(goCtx context.Context, req *intertxtypes.QueryInterchainAccountFromAddressRequest) (*intertxtypes.QueryInterchainAccountFromAddressResponse, error)
+	SubmitTx(goCtx context.Context, msg *intertxtypes.MsgSubmitTx) (*intertxtypes.MsgSubmitTxResponse, error)
+	RegisterAccount(goCtx context.Context, msg *intertxtypes.MsgRegisterAccount) (*intertxtypes.MsgRegisterAccountResponse, error)
 }
 
 // Event Hooks

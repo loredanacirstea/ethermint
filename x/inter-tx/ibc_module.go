@@ -1,4 +1,4 @@
-package inter_tx
+package intertx
 
 import (
 	"github.com/ethereum/go-ethereum/common"

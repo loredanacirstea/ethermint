@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package intertx;
+package ethermint.intertx.v1;
 
-option go_package = "github.com/cosmos/interchain-accounts/x/inter-tx/types";
+option go_package = "github.com/tharsis/ethermint/x/inter-tx/types";
 
 import "gogoproto/gogo.proto";
 
@@ -10,6 +10,9 @@ import "gogoproto/gogo.proto";
 service Query {
   // QueryInterchainAccountFromAddress returns the interchain account for given owner address on a given connection pair
   rpc InterchainAccountFromAddress(QueryInterchainAccountFromAddressRequest) returns (QueryInterchainAccountFromAddressResponse);
+
+  // QueryAbstractAccountFromAddress returns the abstract account for given owner address
+  rpc AbstractAccountAddressFromInterchainAccountAddress(QueryAbstractAccountAddressFromInterchainAccountAddressRequest) returns (QueryAbstractAccountAddressFromInterchainAccountAddressResponse);
 }
 
 // QueryInterchainAccountFromAddressRequest is the request type for the Query/InterchainAccountAddress RPC
@@ -21,4 +24,14 @@ message QueryInterchainAccountFromAddressRequest {
 // QueryInterchainAccountFromAddressResponse the response type for the Query/InterchainAccountAddress RPC
 message QueryInterchainAccountFromAddressResponse {
   string interchain_account_address = 1 [(gogoproto.moretags) = "yaml:\"interchain_account_address\""];
+}
+
+// QueryAbstractAccountAddressFromInterchainAccountAddressRequest is the request type for the Query/AbstractAccountAddressFromInterchainAccountAddress RPC
+message QueryAbstractAccountAddressFromInterchainAccountAddressRequest {
+  string ica_address                      = 1;
+}
+
+// QueryAbstractAccountAddressFromInterchainAccountAddressResponse the response type for the Query/AbstractAccountAddressFromInterchainAccountAddress RPC
+message QueryAbstractAccountAddressFromInterchainAccountAddressResponse {
+  string abstract_account_address = 1 [(gogoproto.moretags) = "yaml:\"abstract_account_address\""];
 }

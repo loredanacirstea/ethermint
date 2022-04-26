@@ -14,10 +14,12 @@ const (
 const (
 	prefixResponse = iota + 1
 	prefixError
+	prefixAbstractAccount
 )
 
 // KVStore key prefixes
 var (
-	KeyPrefixResponse = []byte{prefixResponse}
-	KeyPrefixError    = []byte{prefixError}
+	KeyPrefixResponse        = []byte{prefixResponse}
+	KeyPrefixError           = []byte{prefixError}
+	KeyPrefixAbstractAccount = []byte{prefixAbstractAccount}
 )

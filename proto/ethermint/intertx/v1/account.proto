@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package ethermint.intertx.v1;
+
+option go_package = "github.com/tharsis/ethermint/x/inter-tx/types";
+
+import "gogoproto/gogo.proto";
+
+// Params defines the EVM module parameters
+message AbstractAccount {
+  bytes pub_key = 1;
+  bytes priv_key = 2;
+  string type = 3;
+}

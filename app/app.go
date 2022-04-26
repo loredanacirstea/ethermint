@@ -103,6 +103,7 @@ import (
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/tharsis/ethermint/client/docs/statik"
+	"github.com/tharsis/ethermint/encoding"
 
 	"github.com/tharsis/ethermint/app/ante"
 	srvflags "github.com/tharsis/ethermint/server/flags"
@@ -418,7 +419,7 @@ func NewEthermintApp(
 	)
 	icaModule := ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper)
 
-	app.InterTxKeeper = intertxkeeper.NewKeeper(appCodec, keys[intertxtypes.StoreKey], app.ICAControllerKeeper, scopedInterTxKeeper)
+	app.InterTxKeeper = intertxkeeper.NewKeeper(appCodec, keys[intertxtypes.StoreKey], app.ICAControllerKeeper, scopedInterTxKeeper, nil)
 
 	app.EvmKeeper = evmkeeper.NewKeeper(
 		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], app.GetSubspace(evmtypes.ModuleName),
@@ -426,6 +427,7 @@ func NewEthermintApp(
 		&app.InterTxKeeper,
 		tracer,
 	)
+	app.InterTxKeeper.EvmKeeper = app.EvmKeeper
 
 	interTxModule := intertx.NewAppModule(appCodec, app.InterTxKeeper)
 	interTxIBCModule := intertx.NewIBCModule(app.InterTxKeeper)
@@ -793,6 +795,34 @@ func (app *EthermintApp) RegisterTxService(clientCtx client.Context) {
 
 func (app *EthermintApp) RegisterTendermintService(clientCtx client.Context) {
 	tmservice.RegisterTendermintService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.interfaceRegistry)
+}
+
+// IBC Go TestingApp functions
+
+// GetBaseApp implements the TestingApp interface.
+func (app *EthermintApp) GetBaseApp() *baseapp.BaseApp {
+	return app.BaseApp
+}
+
+// GetStakingKeeper implements the TestingApp interface.
+func (app *EthermintApp) GetStakingKeeper() stakingkeeper.Keeper {
+	return app.StakingKeeper
+}
+
+// GetIBCKeeper implements the TestingApp interface.
+func (app *EthermintApp) GetIBCKeeper() *ibckeeper.Keeper {
+	return app.IBCKeeper
+}
+
+// GetScopedIBCKeeper implements the TestingApp interface.
+func (app *EthermintApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
+	return app.ScopedIBCKeeper
+}
+
+// GetTxConfig implements the TestingApp interface.
+func (app *EthermintApp) GetTxConfig() client.TxConfig {
+	cfg := encoding.MakeConfig(ModuleBasics)
+	return cfg.TxConfig
 }
 
 // RegisterSwaggerAPI registers swagger route with API Server

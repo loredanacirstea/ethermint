@@ -107,7 +107,7 @@ func emitTx(evm *vm.EVM, c *ICAPrecompile, caller vm.ContractRef, input []byte) 
 	if err != nil {
 		return nil, err
 	}
-	res, err := c.intertxKeeper.SubmitTx(c.ctx, msg)
+	res, err := c.intertxKeeper.SubmitTx(sdk.WrapSDKContext(c.ctx), msg)
 	fmt.Println("----SubmitTx res----", res, err)
 	if err != nil {
 		return nil, err
