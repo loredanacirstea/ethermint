@@ -70,23 +70,24 @@ func (k Keeper) SubmitTx(goCtx context.Context, msg *types.MsgSubmitTx) (*types.
 }
 
 // SubmitTx implements the Msg/SubmitTx interface
-func (k Keeper) SubmitEthereumTx(goCtx context.Context, msgEthereumTx *evmtypes.MsgEthereumTx, connectionID string) (*types.MsgSubmitTxResponse, error) {
+func (k Keeper) SubmitEthereumTx(goCtx context.Context, msgEthereumTx *evmtypes.MsgEthereumTx, owner sdk.AccAddress, connectionID string) (*types.MsgSubmitTxResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	ica := msgEthereumTx.GetFrom()
+	ica := msgEthereumTx.From
 	account, found := k.GetAbstractAccount(ctx, ica)
 	if !found {
 		return nil, sdkerrors.Wrapf(types.ErrAbstractAccountNotExist, "failed to retrieve abstract account for interchain account %s", ica)
 	}
 	priv := &ethsecp256k1.PrivKey{Key: account.PrivKey}
 	address := common.BytesToAddress(priv.PubKey().Address().Bytes())
+	msgEthereumTx.From = address.Hex()
 	msgEthereumTx, err := k.signEthereumTx(priv, msgEthereumTx)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrAbstractAccountNotExist, "failed to retrieve abstract account for interchain account %s", ica)
+		return nil, sdkerrors.Wrapf(err, "failed to sign ethereum transaction with abstract account %s", address.Hex())
 	}
 
-	msg, err := types.NewMsgSubmitTx(msgEthereumTx, connectionID, address.String())
+	msg, err := types.NewMsgSubmitTx(msgEthereumTx, connectionID, owner.String())
 	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrInternalInterTx, "failed build MsgSubmitTx")
+		return nil, sdkerrors.Wrapf(err, "failed build MsgSubmitTx")
 	}
 	return k.SubmitTx(goCtx, msg)
 }
