@@ -11,6 +11,7 @@ import (
 	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
+	ibctesting "github.com/tharsis/ethermint/ibc/testing"
 
 	app "github.com/tharsis/ethermint/app"
 )
@@ -50,7 +51,7 @@ type KeeperTestSuite struct {
 	chainB *ibcgotesting.TestChain
 }
 
-func (suite *KeeperTestSuite) GetICAApp(chain *ibcgotesting.TestChain) *app.EthermintApp {
+func (suite *KeeperTestSuite) GetApp(chain *ibcgotesting.TestChain) *app.EthermintApp {
 	app, ok := chain.App.(*app.EthermintApp)
 	if !ok {
 		panic("not ica app")
@@ -66,7 +67,7 @@ func TestKeeperTestSuite(t *testing.T) {
 
 // SetupTest creates a coordinator with 2 test chains.
 func (suite *KeeperTestSuite) SetupTest() {
-	suite.coordinator = ibcgotesting.NewCoordinator(suite.T(), 2)
+	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2, 0)
 	suite.chainA = suite.coordinator.GetChain(ibcgotesting.GetChainID(1))
 	suite.chainB = suite.coordinator.GetChain(ibcgotesting.GetChainID(2))
 }

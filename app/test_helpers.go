@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/simapp"
+	ibctesting "github.com/cosmos/ibc-go/v3/testing"
 	"github.com/tharsis/ethermint/encoding"
 
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -61,4 +62,9 @@ func Setup(isCheckTx bool, patchGenesis func(*EthermintApp, simapp.GenesisState)
 	}
 
 	return app
+}
+
+// SetupTestingApp initializes the IBC-go testing application
+func SetupTestingApp() (ibctesting.TestingApp, map[string]json.RawMessage) {
+	return Setup(false, nil), NewDefaultGenesisState()
 }
