@@ -222,56 +222,18 @@ func (m *MsgSubmitEthereumTx) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgSubmitEthereumTx proto.InternalMessageInfo
 
-// MsgSubmitEthereumTxResponse defines the response for Msg/SubmitEthereumTx
-type MsgSubmitEthereumTxResponse struct {
-}
-
-func (m *MsgSubmitEthereumTxResponse) Reset()         { *m = MsgSubmitEthereumTxResponse{} }
-func (m *MsgSubmitEthereumTxResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgSubmitEthereumTxResponse) ProtoMessage()    {}
-func (*MsgSubmitEthereumTxResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_0bf70c250088a109, []int{5}
-}
-func (m *MsgSubmitEthereumTxResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgSubmitEthereumTxResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgSubmitEthereumTxResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgSubmitEthereumTxResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgSubmitEthereumTxResponse.Merge(m, src)
-}
-func (m *MsgSubmitEthereumTxResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgSubmitEthereumTxResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgSubmitEthereumTxResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgSubmitEthereumTxResponse proto.InternalMessageInfo
-
 func init() {
 	proto.RegisterType((*MsgRegisterAccount)(nil), "ethermint.intertx.v1.MsgRegisterAccount")
 	proto.RegisterType((*MsgRegisterAccountResponse)(nil), "ethermint.intertx.v1.MsgRegisterAccountResponse")
 	proto.RegisterType((*MsgSubmitTx)(nil), "ethermint.intertx.v1.MsgSubmitTx")
 	proto.RegisterType((*MsgSubmitTxResponse)(nil), "ethermint.intertx.v1.MsgSubmitTxResponse")
 	proto.RegisterType((*MsgSubmitEthereumTx)(nil), "ethermint.intertx.v1.MsgSubmitEthereumTx")
-	proto.RegisterType((*MsgSubmitEthereumTxResponse)(nil), "ethermint.intertx.v1.MsgSubmitEthereumTxResponse")
 }
 
 func init() { proto.RegisterFile("ethermint/intertx/v1/tx.proto", fileDescriptor_0bf70c250088a109) }
 
 var fileDescriptor_0bf70c250088a109 = []byte{
-	// 415 bytes of a gzipped FileDescriptorProto
+	// 403 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x4d, 0x2d, 0xc9, 0x48,
 	0x2d, 0xca, 0xcd, 0xcc, 0x2b, 0xd1, 0xcf, 0xcc, 0x2b, 0x49, 0x2d, 0x2a, 0xa9, 0xd0, 0x2f, 0x33,
 	0xd4, 0x2f, 0xa9, 0xd0, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x12, 0x81, 0x4b, 0xeb, 0x41, 0xa5,
@@ -288,16 +250,16 @@ var fileDescriptor_0bf70c250088a109 = []byte{
 	0x46, 0x48, 0x8d, 0x8b, 0x39, 0xb7, 0x38, 0x5d, 0x82, 0x59, 0x81, 0x51, 0x83, 0xdb, 0x48, 0x44,
 	0x0f, 0x12, 0x40, 0x7a, 0xb0, 0x00, 0xd2, 0x73, 0xcc, 0xab, 0x0c, 0x02, 0x29, 0x40, 0x72, 0xb4,
 	0x28, 0x97, 0x30, 0x92, 0xab, 0xe0, 0xae, 0x9d, 0xc3, 0x88, 0x24, 0xee, 0x0a, 0x8a, 0x93, 0xd4,
-	0xd2, 0xdc, 0xc1, 0xe3, 0x6a, 0x59, 0x2e, 0x69, 0x2c, 0xae, 0x83, 0xb9, 0xde, 0xe8, 0x00, 0x13,
-	0x17, 0xb3, 0x6f, 0x71, 0xba, 0x50, 0x2e, 0x17, 0x3f, 0x7a, 0x1a, 0xd0, 0xd0, 0xc3, 0x96, 0xc2,
-	0xf4, 0x30, 0x23, 0x4e, 0xca, 0x80, 0x58, 0x95, 0x30, 0x6b, 0x85, 0x22, 0xb8, 0x38, 0xe0, 0xd1,
-	0xab, 0x88, 0x53, 0x37, 0x4c, 0x89, 0x94, 0x26, 0x41, 0x25, 0x70, 0x93, 0x0b, 0xb8, 0x04, 0x30,
-	0xa2, 0x82, 0x90, 0x76, 0x84, 0x52, 0x29, 0x43, 0xa2, 0x95, 0xc2, 0x6c, 0x74, 0x72, 0x3f, 0xf1,
-	0x48, 0x8e, 0xf1, 0xc2, 0x23, 0x39, 0xc6, 0x07, 0x8f, 0xe4, 0x18, 0x27, 0x3c, 0x96, 0x63, 0xb8,
-	0xf0, 0x58, 0x8e, 0xe1, 0xc6, 0x63, 0x39, 0x86, 0x28, 0xdd, 0xf4, 0xcc, 0x92, 0x8c, 0xd2, 0x24,
-	0xbd, 0xe4, 0xfc, 0x5c, 0xfd, 0x92, 0x8c, 0xc4, 0xa2, 0xe2, 0xcc, 0x62, 0x7d, 0x44, 0xa6, 0xae,
-	0x80, 0x64, 0x6b, 0xdd, 0x92, 0x0a, 0xfd, 0x92, 0xca, 0x82, 0xd4, 0xe2, 0x24, 0x36, 0x70, 0x3c,
-	0x1a, 0x03, 0x02, 0x00, 0x00, 0xff, 0xff, 0xc4, 0xc4, 0x15, 0xa1, 0xf9, 0x03, 0x00, 0x00,
+	0xd2, 0xdc, 0x41, 0xe3, 0x6a, 0xa3, 0x1d, 0x4c, 0x5c, 0xcc, 0xbe, 0xc5, 0xe9, 0x42, 0xb9, 0x5c,
+	0xfc, 0xe8, 0x91, 0xac, 0xa1, 0x87, 0x2d, 0x09, 0xe9, 0x61, 0xc6, 0x8c, 0x94, 0x01, 0xb1, 0x2a,
+	0x61, 0xa1, 0x22, 0x14, 0xc1, 0xc5, 0x01, 0x8f, 0x3f, 0x45, 0x9c, 0xba, 0x61, 0x4a, 0xa4, 0x34,
+	0x09, 0x2a, 0x81, 0x9b, 0x9c, 0xc1, 0x25, 0x80, 0x11, 0xd6, 0x84, 0xb4, 0x23, 0x94, 0x92, 0x60,
+	0x93, 0x93, 0xfb, 0x89, 0x47, 0x72, 0x8c, 0x17, 0x1e, 0xc9, 0x31, 0x3e, 0x78, 0x24, 0xc7, 0x38,
+	0xe1, 0xb1, 0x1c, 0xc3, 0x85, 0xc7, 0x72, 0x0c, 0x37, 0x1e, 0xcb, 0x31, 0x44, 0xe9, 0xa6, 0x67,
+	0x96, 0x64, 0x94, 0x26, 0xe9, 0x25, 0xe7, 0xe7, 0xea, 0x97, 0x64, 0x24, 0x16, 0x15, 0x67, 0x16,
+	0xeb, 0x23, 0x72, 0x6b, 0x05, 0x24, 0xbf, 0xea, 0x96, 0x54, 0xe8, 0x97, 0x54, 0x16, 0xa4, 0x16,
+	0x27, 0xb1, 0x81, 0x23, 0xc8, 0x18, 0x10, 0x00, 0x00, 0xff, 0xff, 0xc8, 0x35, 0xf6, 0xcc, 0xd2,
+	0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -317,7 +279,7 @@ type MsgClient interface {
 	// SubmitTx defines a rpc handler for MsgSubmitTx
 	SubmitTx(ctx context.Context, in *MsgSubmitTx, opts ...grpc.CallOption) (*MsgSubmitTxResponse, error)
 	// SubmitEthereumTx defines a rpc handler for MsgSubmitEthereumTx
-	SubmitEthereumTx(ctx context.Context, in *MsgSubmitEthereumTx, opts ...grpc.CallOption) (*MsgSubmitEthereumTxResponse, error)
+	SubmitEthereumTx(ctx context.Context, in *MsgSubmitEthereumTx, opts ...grpc.CallOption) (*MsgSubmitTxResponse, error)
 }
 
 type msgClient struct {
@@ -346,8 +308,8 @@ func (c *msgClient) SubmitTx(ctx context.Context, in *MsgSubmitTx, opts ...grpc.
 	return out, nil
 }
 
-func (c *msgClient) SubmitEthereumTx(ctx context.Context, in *MsgSubmitEthereumTx, opts ...grpc.CallOption) (*MsgSubmitEthereumTxResponse, error) {
-	out := new(MsgSubmitEthereumTxResponse)
+func (c *msgClient) SubmitEthereumTx(ctx context.Context, in *MsgSubmitEthereumTx, opts ...grpc.CallOption) (*MsgSubmitTxResponse, error) {
+	out := new(MsgSubmitTxResponse)
 	err := c.cc.Invoke(ctx, "/ethermint.intertx.v1.Msg/SubmitEthereumTx", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -362,7 +324,7 @@ type MsgServer interface {
 	// SubmitTx defines a rpc handler for MsgSubmitTx
 	SubmitTx(context.Context, *MsgSubmitTx) (*MsgSubmitTxResponse, error)
 	// SubmitEthereumTx defines a rpc handler for MsgSubmitEthereumTx
-	SubmitEthereumTx(context.Context, *MsgSubmitEthereumTx) (*MsgSubmitEthereumTxResponse, error)
+	SubmitEthereumTx(context.Context, *MsgSubmitEthereumTx) (*MsgSubmitTxResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
@@ -375,7 +337,7 @@ func (*UnimplementedMsgServer) RegisterAccount(ctx context.Context, req *MsgRegi
 func (*UnimplementedMsgServer) SubmitTx(ctx context.Context, req *MsgSubmitTx) (*MsgSubmitTxResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitTx not implemented")
 }
-func (*UnimplementedMsgServer) SubmitEthereumTx(ctx context.Context, req *MsgSubmitEthereumTx) (*MsgSubmitEthereumTxResponse, error) {
+func (*UnimplementedMsgServer) SubmitEthereumTx(ctx context.Context, req *MsgSubmitEthereumTx) (*MsgSubmitTxResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitEthereumTx not implemented")
 }
 
@@ -639,29 +601,6 @@ func (m *MsgSubmitEthereumTx) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgSubmitEthereumTxResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgSubmitEthereumTxResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgSubmitEthereumTxResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	return len(dAtA) - i, nil
-}
-
 func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	offset -= sovTx(v)
 	base := offset
@@ -747,15 +686,6 @@ func (m *MsgSubmitEthereumTx) Size() (n int) {
 		l = m.Msg.Size()
 		n += 1 + l + sovTx(uint64(l))
 	}
-	return n
-}
-
-func (m *MsgSubmitEthereumTxResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
 	return n
 }
 
@@ -1258,56 +1188,6 @@ func (m *MsgSubmitEthereumTx) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgSubmitEthereumTxResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSubmitEthereumTxResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSubmitEthereumTxResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])

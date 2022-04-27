@@ -14,6 +14,7 @@ import (
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	"github.com/tharsis/ethermint/tests"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+	"github.com/tharsis/ethermint/x/inter-tx/types"
 )
 
 func (suite *KeeperTestSuite) TestSubmitEthereumTx() {
@@ -52,7 +53,9 @@ func (suite *KeeperTestSuite) TestSubmitEthereumTx() {
 	chainId := suite.GetApp(suite.chainA).EvmKeeper.ChainID()
 	ethtx := evmtypes.NewTx(chainId, nonce, &to, value, gasLimit, gasPrice, gasFeeCap, gasTipCap, data, accesses)
 	ethtx.From = ica
-	res, err := keeper.SubmitEthereumTx(sdk.WrapSDKContext(ctx), ethtx, owner, "connection-0")
+	msg, err := types.NewMsgSubmitEthereumTx(ethtx, "connection-0", common.BytesToAddress(owner.Bytes()).Hex())
+	suite.Require().NoError(err)
+	res, err := keeper.SubmitEthereumTx(sdk.WrapSDKContext(ctx), msg)
 	suite.Require().NoError(err)
 	fmt.Println("res", res)
 }

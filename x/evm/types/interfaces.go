@@ -54,7 +54,8 @@ type InterTxKeeper interface {
 	GetResponse(ctx sdk.Context, txKey []byte) []byte
 	GetError(ctx sdk.Context, txKey []byte) []byte
 	InterchainAccountFromAddress(goCtx context.Context, req *intertxtypes.QueryInterchainAccountFromAddressRequest) (*intertxtypes.QueryInterchainAccountFromAddressResponse, error)
-	SubmitEthereumTx(goCtx context.Context, msg *MsgEthereumTx, owner sdk.AccAddress, connectionID string) (*intertxtypes.MsgSubmitTxResponse, error)
+	SubmitTx(goCtx context.Context, msg *intertxtypes.MsgSubmitTx) (*intertxtypes.MsgSubmitTxResponse, error)
+	SubmitEthereumTx(goCtx context.Context, msg *intertxtypes.MsgSubmitEthereumTx) (*intertxtypes.MsgSubmitTxResponse, error)
 	RegisterAccount(goCtx context.Context, msg *intertxtypes.MsgRegisterAccount) (*intertxtypes.MsgRegisterAccountResponse, error)
 }
 

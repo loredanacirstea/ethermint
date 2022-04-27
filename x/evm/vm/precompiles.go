@@ -104,8 +104,12 @@ func emitTx(evm *vm.EVM, c *ICAPrecompile, caller vm.ContractRef, input []byte) 
 	data := make([]byte, 0)
 	accesses := &ethtypes.AccessList{}
 	ethtx := types.NewTx(evm.ChainConfig().ChainID, nonce, &to, value, gasLimit, gasPrice, gasFeeCap, gasTipCap, data, accesses)
+	msg, err := intertxtypes.NewMsgSubmitEthereumTx(ethtx, "connection-0", caller.Address().Hex())
+	if err != nil {
+		return nil, err
+	}
 
-	res, err := c.intertxKeeper.SubmitEthereumTx(sdk.WrapSDKContext(c.ctx), ethtx, sdk.AccAddress(caller.Address().Bytes()), "connection-0")
+	res, err := c.intertxKeeper.SubmitEthereumTx(sdk.WrapSDKContext(c.ctx), msg)
 	fmt.Println("----SubmitTx res----", res, err)
 	if err != nil {
 		return nil, err
@@ -139,10 +143,10 @@ func (c *AbstractAccountPrecompile) Run(evm *vm.EVM, caller vm.ContractRef, inpu
 	var err error
 
 	switch signature {
-	case "8937a3a7": // registerAccount()
+	case "d9f226e9": // registerAccount()
 		result, err = registerAccount(evm, c, caller)
-	case "415a2bc1": // submitTx(bytes)
-		result, err = submitTx(evm, c, caller, callInput)
+	case "6a00016e": // sendTx(address,uint256,bytes)
+		result, err = sendTx(evm, c, caller, callInput)
 	default:
 		return nil, errors.New("invalid AbstractAccountPrecompile function")
 	}
@@ -176,7 +180,7 @@ func registerAccount(evm *vm.EVM, c *AbstractAccountPrecompile, caller vm.Contra
 	return make([]byte, 0), nil
 }
 
-func submitTx(evm *vm.EVM, c *AbstractAccountPrecompile, caller vm.ContractRef, input []byte) ([]byte, error) {
+func sendTx(evm *vm.EVM, c *AbstractAccountPrecompile, caller vm.ContractRef, input []byte) ([]byte, error) {
 	query := &intertxtypes.QueryInterchainAccountFromAddressRequest{}
 	_, err := c.intertxKeeper.InterchainAccountFromAddress(sdk.WrapSDKContext(c.ctx), query)
 	if err != nil {
@@ -190,17 +194,28 @@ func submitTx(evm *vm.EVM, c *AbstractAccountPrecompile, caller vm.ContractRef, 
 		}
 	}
 
+	fmt.Println("--AbstractAccountPrecompile submitTx-input-", input)
+	to := common.BytesToAddress(input[0:32])
+	gasLimit := new(big.Int).SetBytes(input[32:64]).Uint64()
+
+	offsetInput := new(big.Int).SetBytes(input[64:96]).Uint64()
+	calldataLength := new(big.Int).SetBytes(input[offsetInput : offsetInput+32]).Uint64()
+	data := input[offsetInput+32 : offsetInput+32+calldataLength]
+	fmt.Println("--AbstractAccountPrecompile data--", data)
+
 	nonce := uint64(0)
 	value := big.NewInt(0)
-	to := common.BytesToAddress(caller.Address().Bytes())
-	gasLimit := uint64(300000)
 	gasPrice := big.NewInt(20)
 	gasFeeCap := big.NewInt(20)
 	gasTipCap := big.NewInt(20)
-	data := make([]byte, 0)
 	accesses := &ethtypes.AccessList{}
 	ethtx := types.NewTx(evm.ChainConfig().ChainID, nonce, &to, value, gasLimit, gasPrice, gasFeeCap, gasTipCap, data, accesses)
+	fmt.Println("ethtx", ethtx)
+	msg, err := intertxtypes.NewMsgSubmitEthereumTx(ethtx, "connection-0", caller.Address().Hex())
+	if err != nil {
+		return nil, err
+	}
 
-	c.intertxKeeper.SubmitEthereumTx(sdk.WrapSDKContext(c.ctx), ethtx, sdk.AccAddress(caller.Address().Bytes()), "connection-0")
+	c.intertxKeeper.SubmitEthereumTx(sdk.WrapSDKContext(c.ctx), msg)
 	return make([]byte, 0), nil
 }
