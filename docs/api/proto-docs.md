@@ -88,6 +88,8 @@
 - [ethermint/intertx/v1/tx.proto](#ethermint/intertx/v1/tx.proto)
     - [MsgRegisterAccount](#ethermint.intertx.v1.MsgRegisterAccount)
     - [MsgRegisterAccountResponse](#ethermint.intertx.v1.MsgRegisterAccountResponse)
+    - [MsgSubmitEthereumTx](#ethermint.intertx.v1.MsgSubmitEthereumTx)
+    - [MsgSubmitEthereumTxResponse](#ethermint.intertx.v1.MsgSubmitEthereumTxResponse)
     - [MsgSubmitTx](#ethermint.intertx.v1.MsgSubmitTx)
     - [MsgSubmitTxResponse](#ethermint.intertx.v1.MsgSubmitTxResponse)
   
@@ -1251,6 +1253,33 @@ MsgRegisterAccountResponse defines the response for Msg/RegisterAccount
 
 
 
+<a name="ethermint.intertx.v1.MsgSubmitEthereumTx"></a>
+
+### MsgSubmitEthereumTx
+MsgSubmitEthereumTx defines the payload for Msg/SubmitEthereumTx
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `owner` | [string](#string) |  |  |
+| `connection_id` | [string](#string) |  |  |
+| `msg` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
+
+
+
+
+
+
+<a name="ethermint.intertx.v1.MsgSubmitEthereumTxResponse"></a>
+
+### MsgSubmitEthereumTxResponse
+MsgSubmitEthereumTxResponse defines the response for Msg/SubmitEthereumTx
+
+
+
+
+
+
 <a name="ethermint.intertx.v1.MsgSubmitTx"></a>
 
 ### MsgSubmitTx
@@ -1293,6 +1322,7 @@ Msg defines the intertx Msg service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `RegisterAccount` | [MsgRegisterAccount](#ethermint.intertx.v1.MsgRegisterAccount) | [MsgRegisterAccountResponse](#ethermint.intertx.v1.MsgRegisterAccountResponse) | Register defines a rpc handler for MsgRegisterAccount | |
 | `SubmitTx` | [MsgSubmitTx](#ethermint.intertx.v1.MsgSubmitTx) | [MsgSubmitTxResponse](#ethermint.intertx.v1.MsgSubmitTxResponse) | SubmitTx defines a rpc handler for MsgSubmitTx | |
+| `SubmitEthereumTx` | [MsgSubmitEthereumTx](#ethermint.intertx.v1.MsgSubmitEthereumTx) | [MsgSubmitEthereumTxResponse](#ethermint.intertx.v1.MsgSubmitEthereumTxResponse) | SubmitEthereumTx defines a rpc handler for MsgSubmitEthereumTx | |
 
  <!-- end services -->
 

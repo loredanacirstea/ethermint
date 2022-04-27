@@ -27,6 +27,16 @@ func (k Keeper) RegisterAccount(goCtx context.Context, msg *types.MsgRegisterAcc
 		return nil, err
 	}
 
+	portID, err := icatypes.NewControllerPortID(msg.Owner)
+	if err != nil {
+		return nil, err
+	}
+	account, err := k.GenerateAbstractAccount(ctx)
+	if err != nil {
+		return nil, err
+	}
+	k.SetAbstractAccount(ctx, portID, account)
+
 	return &types.MsgRegisterAccountResponse{}, nil
 }
 

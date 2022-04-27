@@ -12,6 +12,8 @@ service Msg {
   rpc RegisterAccount(MsgRegisterAccount) returns (MsgRegisterAccountResponse);
   // SubmitTx defines a rpc handler for MsgSubmitTx
   rpc SubmitTx(MsgSubmitTx) returns (MsgSubmitTxResponse);
+  // SubmitEthereumTx defines a rpc handler for MsgSubmitEthereumTx
+  rpc SubmitEthereumTx(MsgSubmitEthereumTx) returns (MsgSubmitEthereumTxResponse);
 }
 
 // MsgRegisterAccount defines the payload for Msg/RegisterAccount
@@ -38,3 +40,16 @@ message MsgSubmitTx {
 
 // MsgSubmitTxResponse defines the response for Msg/SubmitTx
 message MsgSubmitTxResponse {}
+
+// MsgSubmitEthereumTx defines the payload for Msg/SubmitEthereumTx
+message MsgSubmitEthereumTx {
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string owner                       = 1;
+  string connection_id = 2 [(gogoproto.moretags) = "yaml:\"connection_id\""];
+  google.protobuf.Any msg            = 3;
+}
+
+// MsgSubmitEthereumTxResponse defines the response for Msg/SubmitEthereumTx
+message MsgSubmitEthereumTxResponse {}

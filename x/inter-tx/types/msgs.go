@@ -115,3 +115,56 @@ func (msg MsgSubmitTx) ValidateBasic() error {
 
 	return nil
 }
+
+// NewMsgSubmitTx creates and returns a new MsgSubmitTx instance
+func NewMsgSubmitEthereumTx(sdkMsg sdk.Msg, connectionID, owner string) (*MsgSubmitEthereumTx, error) {
+	any, err := PackTxMsgAny(sdkMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &MsgSubmitEthereumTx{
+		ConnectionId: connectionID,
+		Owner:        owner,
+		Msg:          any,
+	}, nil
+}
+
+// UnpackInterfaces implements codectypes.UnpackInterfacesMessage
+func (msg MsgSubmitEthereumTx) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
+	var (
+		sdkMsg sdk.Msg
+	)
+
+	return unpacker.UnpackAny(msg.Msg, &sdkMsg)
+}
+
+// GetTxMsg fetches the cached any message
+func (msg *MsgSubmitEthereumTx) GetTxMsg() sdk.Msg {
+	sdkMsg, ok := msg.Msg.GetCachedValue().(sdk.Msg)
+	if !ok {
+		return nil
+	}
+
+	return sdkMsg
+}
+
+// GetSigners implements sdk.Msg
+func (msg MsgSubmitEthereumTx) GetSigners() []sdk.AccAddress {
+	accAddr, err := sdk.AccAddressFromBech32(msg.Owner)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{accAddr}
+}
+
+// ValidateBasic implements sdk.Msg
+func (msg MsgSubmitEthereumTx) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Owner)
+	if err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "invalid owner address")
+	}
+
+	return nil
+}

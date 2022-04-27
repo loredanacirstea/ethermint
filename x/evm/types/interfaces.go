@@ -10,6 +10,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 	intertxtypes "github.com/tharsis/ethermint/x/inter-tx/types"
 )
@@ -53,7 +54,7 @@ type InterTxKeeper interface {
 	GetResponse(ctx sdk.Context, txKey []byte) []byte
 	GetError(ctx sdk.Context, txKey []byte) []byte
 	InterchainAccountFromAddress(goCtx context.Context, req *intertxtypes.QueryInterchainAccountFromAddressRequest) (*intertxtypes.QueryInterchainAccountFromAddressResponse, error)
-	SubmitTx(goCtx context.Context, msg *intertxtypes.MsgSubmitTx) (*intertxtypes.MsgSubmitTxResponse, error)
+	SubmitEthereumTx(goCtx context.Context, msg *MsgEthereumTx, owner sdk.AccAddress, connectionID string) (*intertxtypes.MsgSubmitTxResponse, error)
 	RegisterAccount(goCtx context.Context, msg *intertxtypes.MsgRegisterAccount) (*intertxtypes.MsgRegisterAccountResponse, error)
 }
 

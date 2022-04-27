@@ -182,17 +182,96 @@ func (m *MsgSubmitTxResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgSubmitTxResponse proto.InternalMessageInfo
 
+// MsgSubmitEthereumTx defines the payload for Msg/SubmitEthereumTx
+type MsgSubmitEthereumTx struct {
+	Owner        string     `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	ConnectionId string     `protobuf:"bytes,2,opt,name=connection_id,json=connectionId,proto3" json:"connection_id,omitempty" yaml:"connection_id"`
+	Msg          *types.Any `protobuf:"bytes,3,opt,name=msg,proto3" json:"msg,omitempty"`
+}
+
+func (m *MsgSubmitEthereumTx) Reset()         { *m = MsgSubmitEthereumTx{} }
+func (m *MsgSubmitEthereumTx) String() string { return proto.CompactTextString(m) }
+func (*MsgSubmitEthereumTx) ProtoMessage()    {}
+func (*MsgSubmitEthereumTx) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0bf70c250088a109, []int{4}
+}
+func (m *MsgSubmitEthereumTx) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgSubmitEthereumTx) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgSubmitEthereumTx.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgSubmitEthereumTx) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgSubmitEthereumTx.Merge(m, src)
+}
+func (m *MsgSubmitEthereumTx) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgSubmitEthereumTx) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgSubmitEthereumTx.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgSubmitEthereumTx proto.InternalMessageInfo
+
+// MsgSubmitEthereumTxResponse defines the response for Msg/SubmitEthereumTx
+type MsgSubmitEthereumTxResponse struct {
+}
+
+func (m *MsgSubmitEthereumTxResponse) Reset()         { *m = MsgSubmitEthereumTxResponse{} }
+func (m *MsgSubmitEthereumTxResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgSubmitEthereumTxResponse) ProtoMessage()    {}
+func (*MsgSubmitEthereumTxResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0bf70c250088a109, []int{5}
+}
+func (m *MsgSubmitEthereumTxResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgSubmitEthereumTxResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgSubmitEthereumTxResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgSubmitEthereumTxResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgSubmitEthereumTxResponse.Merge(m, src)
+}
+func (m *MsgSubmitEthereumTxResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgSubmitEthereumTxResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgSubmitEthereumTxResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgSubmitEthereumTxResponse proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*MsgRegisterAccount)(nil), "ethermint.intertx.v1.MsgRegisterAccount")
 	proto.RegisterType((*MsgRegisterAccountResponse)(nil), "ethermint.intertx.v1.MsgRegisterAccountResponse")
 	proto.RegisterType((*MsgSubmitTx)(nil), "ethermint.intertx.v1.MsgSubmitTx")
 	proto.RegisterType((*MsgSubmitTxResponse)(nil), "ethermint.intertx.v1.MsgSubmitTxResponse")
+	proto.RegisterType((*MsgSubmitEthereumTx)(nil), "ethermint.intertx.v1.MsgSubmitEthereumTx")
+	proto.RegisterType((*MsgSubmitEthereumTxResponse)(nil), "ethermint.intertx.v1.MsgSubmitEthereumTxResponse")
 }
 
 func init() { proto.RegisterFile("ethermint/intertx/v1/tx.proto", fileDescriptor_0bf70c250088a109) }
 
 var fileDescriptor_0bf70c250088a109 = []byte{
-	// 377 bytes of a gzipped FileDescriptorProto
+	// 415 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x4d, 0x2d, 0xc9, 0x48,
 	0x2d, 0xca, 0xcd, 0xcc, 0x2b, 0xd1, 0xcf, 0xcc, 0x2b, 0x49, 0x2d, 0x2a, 0xa9, 0xd0, 0x2f, 0x33,
 	0xd4, 0x2f, 0xa9, 0xd0, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x12, 0x81, 0x4b, 0xeb, 0x41, 0xa5,
@@ -208,15 +287,17 @@ var fileDescriptor_0bf70c250088a109 = []byte{
 	0x46, 0x2e, 0x6e, 0xdf, 0xe2, 0xf4, 0xe0, 0xd2, 0xa4, 0xdc, 0xcc, 0x92, 0x90, 0x0a, 0x9a, 0x38,
 	0x46, 0x48, 0x8d, 0x8b, 0x39, 0xb7, 0x38, 0x5d, 0x82, 0x59, 0x81, 0x51, 0x83, 0xdb, 0x48, 0x44,
 	0x0f, 0x12, 0x40, 0x7a, 0xb0, 0x00, 0xd2, 0x73, 0xcc, 0xab, 0x0c, 0x02, 0x29, 0x40, 0x72, 0xb4,
-	0x28, 0x97, 0x30, 0x92, 0xab, 0x60, 0xae, 0x35, 0x3a, 0xc7, 0xc8, 0xc5, 0xec, 0x5b, 0x9c, 0x2e,
-	0x94, 0xcb, 0xc5, 0x8f, 0x1e, 0x8a, 0x1a, 0x7a, 0xd8, 0xe2, 0x48, 0x0f, 0xd3, 0xeb, 0x52, 0x06,
-	0xc4, 0xaa, 0x84, 0x59, 0x2b, 0x14, 0xc1, 0xc5, 0x01, 0x0f, 0x20, 0x45, 0x9c, 0xba, 0x61, 0x4a,
-	0xa4, 0x34, 0x09, 0x2a, 0x81, 0x99, 0xec, 0xe4, 0x7e, 0xe2, 0x91, 0x1c, 0xe3, 0x85, 0x47, 0x72,
-	0x8c, 0x0f, 0x1e, 0xc9, 0x31, 0x4e, 0x78, 0x2c, 0xc7, 0x70, 0xe1, 0xb1, 0x1c, 0xc3, 0x8d, 0xc7,
-	0x72, 0x0c, 0x51, 0xba, 0xe9, 0x99, 0x25, 0x19, 0xa5, 0x49, 0x7a, 0xc9, 0xf9, 0xb9, 0xfa, 0x25,
-	0x19, 0x89, 0x45, 0xc5, 0x99, 0xc5, 0xfa, 0x88, 0x44, 0x5a, 0x01, 0x49, 0xa6, 0xba, 0x25, 0x15,
-	0xfa, 0x25, 0x95, 0x05, 0xa9, 0xc5, 0x49, 0x6c, 0xe0, 0xd0, 0x34, 0x06, 0x04, 0x00, 0x00, 0xff,
-	0xff, 0x38, 0xba, 0x9a, 0xf1, 0xc9, 0x02, 0x00, 0x00,
+	0x28, 0x97, 0x30, 0x92, 0xab, 0xe0, 0xae, 0x9d, 0xc3, 0x88, 0x24, 0xee, 0x0a, 0x8a, 0x93, 0xd4,
+	0xd2, 0xdc, 0xc1, 0xe3, 0x6a, 0x59, 0x2e, 0x69, 0x2c, 0xae, 0x83, 0xb9, 0xde, 0xe8, 0x00, 0x13,
+	0x17, 0xb3, 0x6f, 0x71, 0xba, 0x50, 0x2e, 0x17, 0x3f, 0x7a, 0x1a, 0xd0, 0xd0, 0xc3, 0x96, 0xc2,
+	0xf4, 0x30, 0x23, 0x4e, 0xca, 0x80, 0x58, 0x95, 0x30, 0x6b, 0x85, 0x22, 0xb8, 0x38, 0xe0, 0xd1,
+	0xab, 0x88, 0x53, 0x37, 0x4c, 0x89, 0x94, 0x26, 0x41, 0x25, 0x70, 0x93, 0x0b, 0xb8, 0x04, 0x30,
+	0xa2, 0x82, 0x90, 0x76, 0x84, 0x52, 0x29, 0x43, 0xa2, 0x95, 0xc2, 0x6c, 0x74, 0x72, 0x3f, 0xf1,
+	0x48, 0x8e, 0xf1, 0xc2, 0x23, 0x39, 0xc6, 0x07, 0x8f, 0xe4, 0x18, 0x27, 0x3c, 0x96, 0x63, 0xb8,
+	0xf0, 0x58, 0x8e, 0xe1, 0xc6, 0x63, 0x39, 0x86, 0x28, 0xdd, 0xf4, 0xcc, 0x92, 0x8c, 0xd2, 0x24,
+	0xbd, 0xe4, 0xfc, 0x5c, 0xfd, 0x92, 0x8c, 0xc4, 0xa2, 0xe2, 0xcc, 0x62, 0x7d, 0x44, 0xa6, 0xae,
+	0x80, 0x64, 0x6b, 0xdd, 0x92, 0x0a, 0xfd, 0x92, 0xca, 0x82, 0xd4, 0xe2, 0x24, 0x36, 0x70, 0x3c,
+	0x1a, 0x03, 0x02, 0x00, 0x00, 0xff, 0xff, 0xc4, 0xc4, 0x15, 0xa1, 0xf9, 0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -235,6 +316,8 @@ type MsgClient interface {
 	RegisterAccount(ctx context.Context, in *MsgRegisterAccount, opts ...grpc.CallOption) (*MsgRegisterAccountResponse, error)
 	// SubmitTx defines a rpc handler for MsgSubmitTx
 	SubmitTx(ctx context.Context, in *MsgSubmitTx, opts ...grpc.CallOption) (*MsgSubmitTxResponse, error)
+	// SubmitEthereumTx defines a rpc handler for MsgSubmitEthereumTx
+	SubmitEthereumTx(ctx context.Context, in *MsgSubmitEthereumTx, opts ...grpc.CallOption) (*MsgSubmitEthereumTxResponse, error)
 }
 
 type msgClient struct {
@@ -263,12 +346,23 @@ func (c *msgClient) SubmitTx(ctx context.Context, in *MsgSubmitTx, opts ...grpc.
 	return out, nil
 }
 
+func (c *msgClient) SubmitEthereumTx(ctx context.Context, in *MsgSubmitEthereumTx, opts ...grpc.CallOption) (*MsgSubmitEthereumTxResponse, error) {
+	out := new(MsgSubmitEthereumTxResponse)
+	err := c.cc.Invoke(ctx, "/ethermint.intertx.v1.Msg/SubmitEthereumTx", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
 	// Register defines a rpc handler for MsgRegisterAccount
 	RegisterAccount(context.Context, *MsgRegisterAccount) (*MsgRegisterAccountResponse, error)
 	// SubmitTx defines a rpc handler for MsgSubmitTx
 	SubmitTx(context.Context, *MsgSubmitTx) (*MsgSubmitTxResponse, error)
+	// SubmitEthereumTx defines a rpc handler for MsgSubmitEthereumTx
+	SubmitEthereumTx(context.Context, *MsgSubmitEthereumTx) (*MsgSubmitEthereumTxResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
@@ -280,6 +374,9 @@ func (*UnimplementedMsgServer) RegisterAccount(ctx context.Context, req *MsgRegi
 }
 func (*UnimplementedMsgServer) SubmitTx(ctx context.Context, req *MsgSubmitTx) (*MsgSubmitTxResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitTx not implemented")
+}
+func (*UnimplementedMsgServer) SubmitEthereumTx(ctx context.Context, req *MsgSubmitEthereumTx) (*MsgSubmitEthereumTxResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubmitEthereumTx not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
@@ -322,6 +419,24 @@ func _Msg_SubmitTx_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Msg_SubmitEthereumTx_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgSubmitEthereumTx)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).SubmitEthereumTx(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ethermint.intertx.v1.Msg/SubmitEthereumTx",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).SubmitEthereumTx(ctx, req.(*MsgSubmitEthereumTx))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Msg_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "ethermint.intertx.v1.Msg",
 	HandlerType: (*MsgServer)(nil),
@@ -333,6 +448,10 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SubmitTx",
 			Handler:    _Msg_SubmitTx_Handler,
+		},
+		{
+			MethodName: "SubmitEthereumTx",
+			Handler:    _Msg_SubmitEthereumTx_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -471,6 +590,78 @@ func (m *MsgSubmitTxResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *MsgSubmitEthereumTx) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgSubmitEthereumTx) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgSubmitEthereumTx) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Msg != nil {
+		{
+			size, err := m.Msg.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintTx(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.ConnectionId) > 0 {
+		i -= len(m.ConnectionId)
+		copy(dAtA[i:], m.ConnectionId)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.ConnectionId)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Owner) > 0 {
+		i -= len(m.Owner)
+		copy(dAtA[i:], m.Owner)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Owner)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgSubmitEthereumTxResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgSubmitEthereumTxResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgSubmitEthereumTxResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	offset -= sovTx(v)
 	base := offset
@@ -530,6 +721,36 @@ func (m *MsgSubmitTx) Size() (n int) {
 }
 
 func (m *MsgSubmitTxResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgSubmitEthereumTx) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Owner)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.ConnectionId)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if m.Msg != nil {
+		l = m.Msg.Size()
+		n += 1 + l + sovTx(uint64(l))
+	}
+	return n
+}
+
+func (m *MsgSubmitEthereumTxResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -885,6 +1106,206 @@ func (m *MsgSubmitTxResponse) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: MsgSubmitTxResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgSubmitEthereumTx) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgSubmitEthereumTx: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgSubmitEthereumTx: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Owner = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ConnectionId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ConnectionId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Msg", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Msg == nil {
+				m.Msg = &types.Any{}
+			}
+			if err := m.Msg.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgSubmitEthereumTxResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgSubmitEthereumTxResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgSubmitEthereumTxResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
