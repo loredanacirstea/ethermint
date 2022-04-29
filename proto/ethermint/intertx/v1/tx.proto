@@ -10,10 +10,14 @@ import "google/protobuf/any.proto";
 service Msg {
   // Register defines a rpc handler for MsgRegisterAccount
   rpc RegisterAccount(MsgRegisterAccount) returns (MsgRegisterAccountResponse);
+  // Register defines a rpc handler for RegisterAbstractAccount
+  rpc RegisterAbstractAccount(MsgRegisterAbstractAccount) returns (MsgRegisterAccountResponse);
   // SubmitTx defines a rpc handler for MsgSubmitTx
   rpc SubmitTx(MsgSubmitTx) returns (MsgSubmitTxResponse);
   // SubmitEthereumTx defines a rpc handler for MsgSubmitEthereumTx
   rpc SubmitEthereumTx(MsgSubmitEthereumTx) returns (MsgSubmitTxResponse);
+  // ForwardEthereumTx defines a rpc handler for MsgForwardEthereumTx
+  rpc ForwardEthereumTx(MsgForwardEthereumTx) returns (MsgSubmitTxResponse);
 }
 
 // MsgRegisterAccount defines the payload for Msg/RegisterAccount
@@ -27,6 +31,14 @@ message MsgRegisterAccount {
 
 // MsgRegisterAccountResponse defines the response for Msg/RegisterAccount
 message MsgRegisterAccountResponse {}
+
+// MsgRegisterAbstractAccount defines the payload for Msg/RegisterAbstractAccount
+message MsgRegisterAbstractAccount {
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string owner                      = 1;
+}
 
 // MsgSubmitTx defines the payload for Msg/SubmitTx
 message MsgSubmitTx {
@@ -49,4 +61,13 @@ message MsgSubmitEthereumTx {
   string owner                       = 1;
   string connection_id = 2 [(gogoproto.moretags) = "yaml:\"connection_id\""];
   google.protobuf.Any msg            = 3;
+}
+
+// MsgForwardEthereumTx defines the payload for Msg/SubmitEthereumTx
+message MsgForwardEthereumTx {
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string owner                       = 1;
+  google.protobuf.Any msg            = 2;
 }

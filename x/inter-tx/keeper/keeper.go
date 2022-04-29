@@ -23,9 +23,11 @@ type Keeper struct {
 	scopedKeeper        capabilitykeeper.ScopedKeeper
 	icaControllerKeeper icacontrollerkeeper.Keeper
 	EvmKeeper           *evmkeeper.Keeper
+	// only for abstract accounts
+	bankKeeper types.BankKeeper
 }
 
-func NewKeeper(cdc codec.Codec, storeKey sdk.StoreKey, iaKeeper icacontrollerkeeper.Keeper, scopedKeeper capabilitykeeper.ScopedKeeper, evmKeeper *evmkeeper.Keeper) Keeper {
+func NewKeeper(cdc codec.Codec, storeKey sdk.StoreKey, iaKeeper icacontrollerkeeper.Keeper, scopedKeeper capabilitykeeper.ScopedKeeper, evmKeeper *evmkeeper.Keeper, bankKeeper types.BankKeeper) Keeper {
 	return Keeper{
 		cdc:      cdc,
 		storeKey: storeKey,
@@ -33,6 +35,7 @@ func NewKeeper(cdc codec.Codec, storeKey sdk.StoreKey, iaKeeper icacontrollerkee
 		scopedKeeper:        scopedKeeper,
 		icaControllerKeeper: iaKeeper,
 		EvmKeeper:           evmKeeper,
+		bankKeeper:          bankKeeper,
 	}
 }
 

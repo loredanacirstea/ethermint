@@ -56,7 +56,9 @@ type InterTxKeeper interface {
 	InterchainAccountFromAddress(goCtx context.Context, req *intertxtypes.QueryInterchainAccountFromAddressRequest) (*intertxtypes.QueryInterchainAccountFromAddressResponse, error)
 	SubmitTx(goCtx context.Context, msg *intertxtypes.MsgSubmitTx) (*intertxtypes.MsgSubmitTxResponse, error)
 	SubmitEthereumTx(goCtx context.Context, msg *intertxtypes.MsgSubmitEthereumTx) (*intertxtypes.MsgSubmitTxResponse, error)
+	ForwardEthereumTx(goCtx context.Context, msg *intertxtypes.MsgForwardEthereumTx) (*intertxtypes.MsgSubmitTxResponse, error)
 	RegisterAccount(goCtx context.Context, msg *intertxtypes.MsgRegisterAccount) (*intertxtypes.MsgRegisterAccountResponse, error)
+	RegisterAbstractAccount(goCtx context.Context, msg *intertxtypes.MsgRegisterAbstractAccount) (*intertxtypes.MsgRegisterAccountResponse, error)
 }
 
 // Event Hooks

@@ -86,6 +86,8 @@
     - [Query](#ethermint.intertx.v1.Query)
   
 - [ethermint/intertx/v1/tx.proto](#ethermint/intertx/v1/tx.proto)
+    - [MsgForwardEthereumTx](#ethermint.intertx.v1.MsgForwardEthereumTx)
+    - [MsgRegisterAbstractAccount](#ethermint.intertx.v1.MsgRegisterAbstractAccount)
     - [MsgRegisterAccount](#ethermint.intertx.v1.MsgRegisterAccount)
     - [MsgRegisterAccountResponse](#ethermint.intertx.v1.MsgRegisterAccountResponse)
     - [MsgSubmitEthereumTx](#ethermint.intertx.v1.MsgSubmitEthereumTx)
@@ -1226,6 +1228,37 @@ Query defines the gRPC querier service.
 
 
 
+<a name="ethermint.intertx.v1.MsgForwardEthereumTx"></a>
+
+### MsgForwardEthereumTx
+MsgForwardEthereumTx defines the payload for Msg/SubmitEthereumTx
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `owner` | [string](#string) |  |  |
+| `msg` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
+
+
+
+
+
+
+<a name="ethermint.intertx.v1.MsgRegisterAbstractAccount"></a>
+
+### MsgRegisterAbstractAccount
+MsgRegisterAbstractAccount defines the payload for Msg/RegisterAbstractAccount
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `owner` | [string](#string) |  |  |
+
+
+
+
+
+
 <a name="ethermint.intertx.v1.MsgRegisterAccount"></a>
 
 ### MsgRegisterAccount
@@ -1310,8 +1343,10 @@ Msg defines the intertx Msg service.
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `RegisterAccount` | [MsgRegisterAccount](#ethermint.intertx.v1.MsgRegisterAccount) | [MsgRegisterAccountResponse](#ethermint.intertx.v1.MsgRegisterAccountResponse) | Register defines a rpc handler for MsgRegisterAccount | |
+| `RegisterAbstractAccount` | [MsgRegisterAbstractAccount](#ethermint.intertx.v1.MsgRegisterAbstractAccount) | [MsgRegisterAccountResponse](#ethermint.intertx.v1.MsgRegisterAccountResponse) | Register defines a rpc handler for RegisterAbstractAccount | |
 | `SubmitTx` | [MsgSubmitTx](#ethermint.intertx.v1.MsgSubmitTx) | [MsgSubmitTxResponse](#ethermint.intertx.v1.MsgSubmitTxResponse) | SubmitTx defines a rpc handler for MsgSubmitTx | |
 | `SubmitEthereumTx` | [MsgSubmitEthereumTx](#ethermint.intertx.v1.MsgSubmitEthereumTx) | [MsgSubmitTxResponse](#ethermint.intertx.v1.MsgSubmitTxResponse) | SubmitEthereumTx defines a rpc handler for MsgSubmitEthereumTx | |
+| `ForwardEthereumTx` | [MsgForwardEthereumTx](#ethermint.intertx.v1.MsgForwardEthereumTx) | [MsgSubmitTxResponse](#ethermint.intertx.v1.MsgSubmitTxResponse) | ForwardEthereumTx defines a rpc handler for MsgForwardEthereumTx | |
 
  <!-- end services -->
 

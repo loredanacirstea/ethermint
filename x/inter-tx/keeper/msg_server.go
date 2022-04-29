@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"math/big"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -36,6 +37,18 @@ func (k Keeper) RegisterAccount(goCtx context.Context, msg *types.MsgRegisterAcc
 		return nil, err
 	}
 	k.SetAbstractAccount(ctx, portID, account)
+
+	return &types.MsgRegisterAccountResponse{}, nil
+}
+
+// RegisterAccount implements the Msg/RegisterAbstractAccount interface
+func (k Keeper) RegisterAbstractAccount(goCtx context.Context, msg *types.MsgRegisterAbstractAccount) (*types.MsgRegisterAccountResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	account, err := k.GenerateAbstractAccount(ctx)
+	if err != nil {
+		return nil, err
+	}
+	k.SetAbstractAccount(ctx, msg.Owner, account)
 
 	return &types.MsgRegisterAccountResponse{}, nil
 }
@@ -107,6 +120,58 @@ func (k Keeper) SubmitEthereumTx(goCtx context.Context, msg *types.MsgSubmitEthe
 		return nil, sdkerrors.Wrapf(err, "failed build MsgSubmitTx")
 	}
 	return k.SubmitTx(goCtx, newmsg)
+}
+
+// SubmitTx implements the Msg/SubmitTx interface
+func (k Keeper) ForwardEthereumTx(goCtx context.Context, msg *types.MsgForwardEthereumTx) (*types.MsgSubmitTxResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	msgEthereumTx := msg.GetTxMsg().(*evmtypes.MsgEthereumTx)
+	owner := sdk.AccAddress(common.HexToAddress(msg.Owner).Bytes())
+	account, found := k.GetAbstractAccount(ctx, msg.Owner)
+	if !found {
+		registerMsg := &types.MsgRegisterAbstractAccount{
+			Owner: msg.Owner,
+		}
+		_, err := k.RegisterAbstractAccount(goCtx, registerMsg)
+		if err != nil {
+			return nil, sdkerrors.Wrapf(types.ErrAbstractAccountCouldNotBeCreated, "failed to create abstract account for %s", msg.Owner)
+		}
+		account, found = k.GetAbstractAccount(ctx, msg.Owner)
+		if !found {
+			return nil, sdkerrors.Wrapf(types.ErrAbstractAccountNotExist, "failed to retrieve abstract account for interchain account %s", msg.Owner)
+		}
+	}
+	priv := &ethsecp256k1.PrivKey{Key: account.PrivKey}
+	address := common.BytesToAddress(priv.PubKey().Address().Bytes())
+	msgEthereumTx.From = address.Hex()
+	msgEthereumTx, err := k.signEthereumTx(priv, msgEthereumTx)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(err, "failed to sign ethereum transaction with abstract account %s", address.Hex())
+	}
+
+	var cost *big.Int
+	txData, err := evmtypes.UnpackTxData(msgEthereumTx.Data)
+	if err != nil {
+		cost = txData.Cost()
+	} else {
+		cost = big.NewInt(int64(msgEthereumTx.GetGas() * msgEthereumTx.GetFee().Uint64()))
+	}
+
+	coins := sdk.Coins{{Denom: k.EvmKeeper.GetParams(ctx).EvmDenom, Amount: sdk.NewIntFromBigInt(cost)}}
+	err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, owner, types.ModuleName, coins)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(err, "failed to send transaction fees from owner %s to module %s", address.Hex(), types.ModuleName)
+	}
+	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sdk.AccAddress(address.Bytes()), coins)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(err, "failed to send transaction fees from module %s to address %s", types.ModuleName, address.Hex())
+	}
+
+	_, err = k.EvmKeeper.EthereumTx(goCtx, msgEthereumTx)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(err, "failed to forward transaction")
+	}
+	return &types.MsgSubmitTxResponse{}, nil
 }
 
 func (k Keeper) signEthereumTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereumTx) (*evmtypes.MsgEthereumTx, error) {

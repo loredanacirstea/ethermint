@@ -145,8 +145,8 @@ func (c *AbstractAccountPrecompile) Run(evm *vm.EVM, caller vm.ContractRef, inpu
 	switch signature {
 	case "d9f226e9": // registerAccount()
 		result, err = registerAccount(evm, c, caller)
-	case "6a00016e": // sendTx(address,uint256,bytes)
-		result, err = sendTx(evm, c, caller, callInput)
+	case "e6630840": // sendTx(address,uint256,uint256,bytes)
+		result, err = forwardTx(evm, c, caller, callInput)
 	default:
 		return nil, errors.New("invalid AbstractAccountPrecompile function")
 	}
@@ -211,11 +211,39 @@ func sendTx(evm *vm.EVM, c *AbstractAccountPrecompile, caller vm.ContractRef, in
 	accesses := &ethtypes.AccessList{}
 	ethtx := types.NewTx(evm.ChainConfig().ChainID, nonce, &to, value, gasLimit, gasPrice, gasFeeCap, gasTipCap, data, accesses)
 	fmt.Println("ethtx", ethtx)
-	msg, err := intertxtypes.NewMsgSubmitEthereumTx(ethtx, "connection-0", caller.Address().Hex())
+	msg, err := intertxtypes.NewMsgForwardEthereumTx(ethtx, caller.Address().Hex())
 	if err != nil {
 		return nil, err
 	}
 
-	c.intertxKeeper.SubmitEthereumTx(sdk.WrapSDKContext(c.ctx), msg)
+	c.intertxKeeper.ForwardEthereumTx(sdk.WrapSDKContext(c.ctx), msg)
+	return make([]byte, 0), nil
+}
+
+func forwardTx(evm *vm.EVM, c *AbstractAccountPrecompile, caller vm.ContractRef, input []byte) ([]byte, error) {
+	to := common.BytesToAddress(input[0:32])
+	value := new(big.Int).SetBytes(input[32:64])
+	gasLimit := new(big.Int).SetBytes(input[64:96]).Uint64()
+
+	offsetInput := new(big.Int).SetBytes(input[96:128]).Uint64()
+	calldataLength := new(big.Int).SetBytes(input[offsetInput : offsetInput+32]).Uint64()
+	data := input[offsetInput+32 : offsetInput+32+calldataLength]
+
+	// TODOD send nonce back to owner contract so it can keep track of it
+	nonce := uint64(0)
+	gasPrice := big.NewInt(20)
+	gasFeeCap := big.NewInt(20)
+	gasTipCap := big.NewInt(20)
+	accesses := &ethtypes.AccessList{}
+	ethtx := types.NewTx(evm.ChainConfig().ChainID, nonce, &to, value, gasLimit, gasPrice, gasFeeCap, gasTipCap, data, accesses)
+	msg, err := intertxtypes.NewMsgForwardEthereumTx(ethtx, caller.Address().Hex())
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = c.intertxKeeper.ForwardEthereumTx(sdk.WrapSDKContext(c.ctx), msg)
+	if err != nil {
+		return nil, err
+	}
 	return make([]byte, 0), nil
 }
