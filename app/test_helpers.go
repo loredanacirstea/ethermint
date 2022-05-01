@@ -66,5 +66,8 @@ func Setup(isCheckTx bool, patchGenesis func(*EthermintApp, simapp.GenesisState)
 
 // SetupTestingApp initializes the IBC-go testing application
 func SetupTestingApp() (ibctesting.TestingApp, map[string]json.RawMessage) {
-	return Setup(false, nil), NewDefaultGenesisState()
+	db := dbm.NewMemDB()
+	cfg := encoding.MakeConfig(ModuleBasics)
+	app := NewEthermintApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, 5, cfg, simapp.EmptyAppOptions{})
+	return app, NewDefaultGenesisState()
 }

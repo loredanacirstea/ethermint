@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 	"time"
 
@@ -92,8 +93,9 @@ func (k Keeper) SubmitTx(goCtx context.Context, msg *types.MsgSubmitTx) (*types.
 	return &types.MsgSubmitTxResponse{}, nil
 }
 
-// SubmitTx implements the Msg/SubmitTx interface
+// SubmitEthereumTx implements the Msg/SubmitEthereumTx interface
 func (k Keeper) SubmitEthereumTx(goCtx context.Context, msg *types.MsgSubmitEthereumTx) (*types.MsgSubmitTxResponse, error) {
+	fmt.Println("---SubmitEthereumTx--")
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	owner := sdk.AccAddress(common.HexToAddress(msg.Owner).Bytes())
 	connectionID := msg.ConnectionId
@@ -105,7 +107,17 @@ func (k Keeper) SubmitEthereumTx(goCtx context.Context, msg *types.MsgSubmitEthe
 	}
 	account, found := k.GetAbstractAccount(ctx, ica)
 	if !found {
-		return nil, sdkerrors.Wrapf(types.ErrAbstractAccountNotExist, "failed to retrieve abstract account for interchain account %s", ica)
+		registerMsg := &types.MsgRegisterAbstractAccount{
+			Owner: msg.Owner,
+		}
+		_, err := k.RegisterAbstractAccount(goCtx, registerMsg)
+		if err != nil {
+			return nil, sdkerrors.Wrapf(types.ErrAbstractAccountCouldNotBeCreated, "failed to create abstract account for %s", msg.Owner)
+		}
+		account, found = k.GetAbstractAccount(ctx, msg.Owner)
+		if !found {
+			return nil, sdkerrors.Wrapf(types.ErrAbstractAccountNotExist, "failed to retrieve abstract account for interchain account %s", ica)
+		}
 	}
 	priv := &ethsecp256k1.PrivKey{Key: account.PrivKey}
 	address := common.BytesToAddress(priv.PubKey().Address().Bytes())
@@ -115,14 +127,37 @@ func (k Keeper) SubmitEthereumTx(goCtx context.Context, msg *types.MsgSubmitEthe
 		return nil, sdkerrors.Wrapf(err, "failed to sign ethereum transaction with abstract account %s", address.Hex())
 	}
 
-	newmsg, err := types.NewMsgSubmitTx(msgEthereumTx, connectionID, owner.String())
+	// We wrap the EthereumTx message to pass through ICA module authorization
+	// MsgWrappedEthereumTx returns the IcaAddress when `msg.GetSigners()` is called
+	// We avoid checking the MsgEthereumTx signature in the ICA module, but this is checked
+	// in the EVM module
+	wrappedMsg, err := types.NewMsgWrappedEthereumTx(msgEthereumTx, ica)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(err, "failed build MsgWrappedEthereumTx")
+	}
+
+	newmsg, err := types.NewMsgSubmitTx(wrappedMsg, connectionID, owner.String())
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "failed build MsgSubmitTx")
 	}
 	return k.SubmitTx(goCtx, newmsg)
 }
 
-// SubmitTx implements the Msg/SubmitTx interface
+func (k Keeper) UnwrapEthereumTx(goCtx context.Context, msg *types.MsgWrappedEthereumTx) (*types.MsgSubmitTxResponse, error) {
+	fmt.Println("---UnwrapEthereumTx--")
+	msgEthereumTx := msg.GetTxMsg().(*evmtypes.MsgEthereumTx)
+
+	// Unwrap the EthereumTx and send it to the EVM module
+	_, err := k.EvmKeeper.EthereumTx(goCtx, msgEthereumTx)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(err, "failed to forward transaction")
+	}
+	return &types.MsgSubmitTxResponse{}, nil
+}
+
+// ForwardEthereumTx implements the Msg/ForwardEthereumTx interface
+// It forwards a transaction from a contract account to be signed with
+// the contract's abstract account and sent to the EVM module
 func (k Keeper) ForwardEthereumTx(goCtx context.Context, msg *types.MsgForwardEthereumTx) (*types.MsgSubmitTxResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	msgEthereumTx := msg.GetTxMsg().(*evmtypes.MsgEthereumTx)

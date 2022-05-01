@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -32,13 +31,13 @@ var (
 	}))
 )
 
-func init() {
-	ibcgotesting.DefaultTestingAppInit = SetupICATestingApp
-}
+// func init() {
+// 	ibcgotesting.DefaultTestingAppInit = SetupICATestingApp
+// }
 
-func SetupICATestingApp() (ibcgotesting.TestingApp, map[string]json.RawMessage) {
-	return app.Setup(false, nil), app.NewDefaultGenesisState()
-}
+// func SetupICATestingApp() (ibcgotesting.TestingApp, map[string]json.RawMessage) {
+// 	return app.Setup(false, nil), app.NewDefaultGenesisState()
+// }
 
 // KeeperTestSuite is a testing suite to test keeper functions
 type KeeperTestSuite struct {
@@ -82,4 +81,48 @@ func NewICAPath(chainA, chainB *ibcgotesting.TestChain) *ibcgotesting.Path {
 	path.EndpointB.ChannelConfig.Version = TestVersion
 
 	return path
+}
+
+func RegisterInterchainAccount(endpoint *ibcgotesting.Endpoint, owner string) error {
+	portID, err := icatypes.NewControllerPortID(owner)
+	if err != nil {
+		return err
+	}
+
+	channelSequence := endpoint.Chain.App.GetIBCKeeper().ChannelKeeper.GetNextChannelSequence(endpoint.Chain.GetContext())
+
+	if err := endpoint.Chain.GetSimApp().ICAControllerKeeper.RegisterInterchainAccount(endpoint.Chain.GetContext(), endpoint.ConnectionID, owner); err != nil {
+		return err
+	}
+
+	// commit state changes for proof verification
+	endpoint.Chain.NextBlock()
+
+	// update port/channel ids
+	endpoint.ChannelID = channeltypes.FormatChannelIdentifier(channelSequence)
+	endpoint.ChannelConfig.PortID = portID
+	endpoint.ChannelConfig.Version = TestVersion
+
+	return nil
+}
+
+// SetupICAPath invokes the InterchainAccounts entrypoint and subsequent channel handshake handlers
+func SetupICAPath(path *ibcgotesting.Path, owner string) error {
+	if err := RegisterInterchainAccount(path.EndpointA, owner); err != nil {
+		return err
+	}
+
+	if err := path.EndpointB.ChanOpenTry(); err != nil {
+		return err
+	}
+
+	if err := path.EndpointA.ChanOpenAck(); err != nil {
+		return err
+	}
+
+	if err := path.EndpointB.ChanOpenConfirm(); err != nil {
+		return err
+	}
+
+	return nil
 }
