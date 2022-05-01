@@ -33,6 +33,7 @@ func (k Keeper) RegisterAccount(goCtx context.Context, msg *types.MsgRegisterAcc
 	if err != nil {
 		return nil, err
 	}
+
 	account, err := k.GenerateAbstractAccount(ctx)
 	if err != nil {
 		return nil, err
@@ -101,11 +102,19 @@ func (k Keeper) SubmitEthereumTx(goCtx context.Context, msg *types.MsgSubmitEthe
 	connectionID := msg.ConnectionId
 	msgEthereumTx := msg.GetTxMsg().(*evmtypes.MsgEthereumTx)
 
-	ica, err := icatypes.NewControllerPortID(msg.Owner)
+	portID, err := icatypes.NewControllerPortID(owner.String())
 	if err != nil {
 		return nil, err
 	}
-	account, found := k.GetAbstractAccount(ctx, ica)
+	ica, found := k.icaControllerKeeper.GetInterchainAccountAddress(ctx, msg.ConnectionId, portID)
+	if !found {
+		portID = icatypes.PortID
+		ica, found = k.icaControllerKeeper.GetInterchainAccountAddress(ctx, msg.ConnectionId, portID)
+
+		return nil, sdkerrors.Wrapf(icatypes.ErrInterchainAccountNotFound, "failed to retrieve interchain account for connection %s; portID %s", msg.ConnectionId, portID)
+	}
+
+	account, found := k.GetAbstractAccount(ctx, portID)
 	if !found {
 		registerMsg := &types.MsgRegisterAbstractAccount{
 			Owner: msg.Owner,
@@ -114,7 +123,7 @@ func (k Keeper) SubmitEthereumTx(goCtx context.Context, msg *types.MsgSubmitEthe
 		if err != nil {
 			return nil, sdkerrors.Wrapf(types.ErrAbstractAccountCouldNotBeCreated, "failed to create abstract account for %s", msg.Owner)
 		}
-		account, found = k.GetAbstractAccount(ctx, msg.Owner)
+		account, found = k.GetAbstractAccount(ctx, portID)
 		if !found {
 			return nil, sdkerrors.Wrapf(types.ErrAbstractAccountNotExist, "failed to retrieve abstract account for interchain account %s", ica)
 		}
