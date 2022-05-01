@@ -21,6 +21,7 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		&MsgSubmitTx{},
 		&MsgRegisterAbstractAccount{},
 		&MsgSubmitEthereumTx{},
+		&MsgWrappedEthereumTx{},
 		&MsgForwardEthereumTx{},
 	)
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

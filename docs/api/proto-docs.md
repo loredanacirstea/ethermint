@@ -93,6 +93,7 @@
     - [MsgSubmitEthereumTx](#ethermint.intertx.v1.MsgSubmitEthereumTx)
     - [MsgSubmitTx](#ethermint.intertx.v1.MsgSubmitTx)
     - [MsgSubmitTxResponse](#ethermint.intertx.v1.MsgSubmitTxResponse)
+    - [MsgWrappedEthereumTx](#ethermint.intertx.v1.MsgWrappedEthereumTx)
   
     - [Msg](#ethermint.intertx.v1.Msg)
   
@@ -1110,7 +1111,7 @@ Query defines the gRPC querier service.
 <a name="ethermint.intertx.v1.AbstractAccount"></a>
 
 ### AbstractAccount
-Params defines the EVM module parameters
+AbstractAccount defines an abstract account
 
 
 | Field | Type | Label | Description |
@@ -1328,6 +1329,22 @@ MsgSubmitTxResponse defines the response for Msg/SubmitTx
 
 
 
+
+<a name="ethermint.intertx.v1.MsgWrappedEthereumTx"></a>
+
+### MsgWrappedEthereumTx
+MsgWrappedEthereumTx defines a wrapped MsgEthereumTx, sent through the intertx module
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `ica_address` | [string](#string) |  |  |
+| `msg` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
+
+
+
+
+
  <!-- end messages -->
 
  <!-- end enums -->
@@ -1346,6 +1363,7 @@ Msg defines the intertx Msg service.
 | `RegisterAbstractAccount` | [MsgRegisterAbstractAccount](#ethermint.intertx.v1.MsgRegisterAbstractAccount) | [MsgRegisterAccountResponse](#ethermint.intertx.v1.MsgRegisterAccountResponse) | Register defines a rpc handler for RegisterAbstractAccount | |
 | `SubmitTx` | [MsgSubmitTx](#ethermint.intertx.v1.MsgSubmitTx) | [MsgSubmitTxResponse](#ethermint.intertx.v1.MsgSubmitTxResponse) | SubmitTx defines a rpc handler for MsgSubmitTx | |
 | `SubmitEthereumTx` | [MsgSubmitEthereumTx](#ethermint.intertx.v1.MsgSubmitEthereumTx) | [MsgSubmitTxResponse](#ethermint.intertx.v1.MsgSubmitTxResponse) | SubmitEthereumTx defines a rpc handler for MsgSubmitEthereumTx | |
+| `UnwrapEthereumTx` | [MsgWrappedEthereumTx](#ethermint.intertx.v1.MsgWrappedEthereumTx) | [MsgSubmitTxResponse](#ethermint.intertx.v1.MsgSubmitTxResponse) | UnwrapEthereumTx defines a rpc handler for MsgSubmitEthereumTx | |
 | `ForwardEthereumTx` | [MsgForwardEthereumTx](#ethermint.intertx.v1.MsgForwardEthereumTx) | [MsgSubmitTxResponse](#ethermint.intertx.v1.MsgSubmitTxResponse) | ForwardEthereumTx defines a rpc handler for MsgForwardEthereumTx | |
 
  <!-- end services -->

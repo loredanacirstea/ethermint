@@ -253,3 +253,55 @@ func (msg MsgForwardEthereumTx) ValidateBasic() error {
 
 	return nil
 }
+
+// NewMsgForwardEthereumTx creates and returns a new MsgSubmitTx instance
+func NewMsgWrappedEthereumTx(sdkMsg sdk.Msg, icaAddress string) (*MsgWrappedEthereumTx, error) {
+	any, err := PackTxMsgAny(sdkMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &MsgWrappedEthereumTx{
+		IcaAddress: icaAddress,
+		Msg:        any,
+	}, nil
+}
+
+// UnpackInterfaces implements codectypes.UnpackInterfacesMessage
+func (msg MsgWrappedEthereumTx) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
+	var (
+		sdkMsg sdk.Msg
+	)
+
+	return unpacker.UnpackAny(msg.Msg, &sdkMsg)
+}
+
+// GetTxMsg fetches the cached any message
+func (msg *MsgWrappedEthereumTx) GetTxMsg() sdk.Msg {
+	sdkMsg, ok := msg.Msg.GetCachedValue().(sdk.Msg)
+	if !ok {
+		return nil
+	}
+
+	return sdkMsg
+}
+
+// GetSigners implements sdk.Msg
+func (msg MsgWrappedEthereumTx) GetSigners() []sdk.AccAddress {
+	accAddr, err := sdk.AccAddressFromBech32(msg.IcaAddress)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{accAddr}
+}
+
+// ValidateBasic implements sdk.Msg
+func (msg MsgWrappedEthereumTx) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.IcaAddress)
+	if err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "invalid owner address")
+	}
+
+	return nil
+}

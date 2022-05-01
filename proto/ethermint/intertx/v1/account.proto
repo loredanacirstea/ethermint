@@ -6,7 +6,7 @@ option go_package = "github.com/tharsis/ethermint/x/inter-tx/types";
 
 import "gogoproto/gogo.proto";
 
-// Params defines the EVM module parameters
+// AbstractAccount defines an abstract account
 message AbstractAccount {
   bytes pub_key = 1;
   bytes priv_key = 2;

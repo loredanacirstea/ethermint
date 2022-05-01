@@ -23,7 +23,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// Params defines the EVM module parameters
+// AbstractAccount defines an abstract account
 type AbstractAccount struct {
 	PubKey  []byte `protobuf:"bytes,1,opt,name=pub_key,json=pubKey,proto3" json:"pub_key,omitempty"`
 	PrivKey []byte `protobuf:"bytes,2,opt,name=priv_key,json=privKey,proto3" json:"priv_key,omitempty"`
