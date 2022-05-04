@@ -9,12 +9,17 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
+	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
+	"github.com/tharsis/ethermint/encoding"
 	"github.com/tharsis/ethermint/tests"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 	"github.com/tharsis/ethermint/x/inter-tx/types"
@@ -106,10 +111,12 @@ func (k Keeper) SubmitEthereumTx(goCtx context.Context, msg *types.MsgSubmitEthe
 	if err != nil {
 		return nil, err
 	}
+
 	ica, found := k.icaControllerKeeper.GetInterchainAccountAddress(ctx, msg.ConnectionId, portID)
+
 	if !found {
-		portID = icatypes.PortID
-		ica, found = k.icaControllerKeeper.GetInterchainAccountAddress(ctx, msg.ConnectionId, portID)
+		// portID = icatypes.PortID
+		// ica, found = k.icaControllerKeeper.GetInterchainAccountAddress(ctx, msg.ConnectionId, portID)
 
 		return nil, sdkerrors.Wrapf(icatypes.ErrInterchainAccountNotFound, "failed to retrieve interchain account for connection %s; portID %s", msg.ConnectionId, portID)
 	}
@@ -149,18 +156,70 @@ func (k Keeper) SubmitEthereumTx(goCtx context.Context, msg *types.MsgSubmitEthe
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "failed build MsgSubmitTx")
 	}
+
 	return k.SubmitTx(goCtx, newmsg)
 }
 
+// Host
 func (k Keeper) UnwrapEthereumTx(goCtx context.Context, msg *types.MsgWrappedEthereumTx) (*types.MsgSubmitTxResponse, error) {
-	fmt.Println("---UnwrapEthereumTx--")
+	ctx := sdk.UnwrapSDKContext(goCtx)
 	msgEthereumTx := msg.GetTxMsg().(*evmtypes.MsgEthereumTx)
+	icaAddress, err := sdk.AccAddressFromBech32(msg.IcaAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	var cost *big.Int
+	txData, err := evmtypes.UnpackTxData(msgEthereumTx.Data)
+	if err != nil {
+		cost = txData.Cost()
+	} else {
+		cost = big.NewInt(int64(msgEthereumTx.GetGas() * msgEthereumTx.GetFee().Uint64()))
+	}
+
+	coins := sdk.Coins{{Denom: k.EvmKeeper.GetParams(ctx).EvmDenom, Amount: sdk.NewIntFromBigInt(cost)}}
+	// err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, icaAddress, types.ModuleName, coins)
+	// if err != nil {
+	// 	return nil, sdkerrors.Wrapf(err, "failed to send transaction fees from owner %s to module %s", msg.IcaAddress, types.ModuleName)
+	// }
+	// err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, icaAddress, coins)
+	// if err != nil {
+	// 	return nil, sdkerrors.Wrapf(err, "failed to send transaction fees from module %s to address %s", types.ModuleName, msg.IcaAddress)
+	// }
+
+	icaAcc, err := authante.GetSignerAcc(ctx, k.accountKeeper, icaAddress)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(err, "account not found for sender %s", icaAddress.String())
+	}
+
+	// deduct the full gas cost from the user balance
+	// for the feecollector
+	if err := authante.DeductFees(k.bankKeeper, ctx, icaAcc, coins); err != nil {
+		return nil, sdkerrors.Wrapf(
+			err,
+			"failed to deduct full gas cost %s from the user %s balance",
+			coins, icaAddress.String(),
+		)
+	}
+
+	// TODO run antehandler checks while maintaining contex
 
 	// Unwrap the EthereumTx and send it to the EVM module
-	_, err := k.EvmKeeper.EthereumTx(goCtx, msgEthereumTx)
+	res, err := k.EvmKeeper.EthereumTx(goCtx, msgEthereumTx)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "failed to forward transaction")
 	}
+	fmt.Println("---UnwrapEthereumTx-res-", res)
+
+	// tx := msgEthereumTx.AsTransaction()
+
+	// this loses context, so we cannot make a reliable refund
+	// res, err := k.performEthTx(goCtx)
+
+	// hash, ret, gas_used
+
+	// TODO move refunds to ica account
+
 	return &types.MsgSubmitTxResponse{}, nil
 }
 
@@ -211,10 +270,14 @@ func (k Keeper) ForwardEthereumTx(goCtx context.Context, msg *types.MsgForwardEt
 		return nil, sdkerrors.Wrapf(err, "failed to send transaction fees from module %s to address %s", types.ModuleName, address.Hex())
 	}
 
+	// TODO deliverTx
 	_, err = k.EvmKeeper.EthereumTx(goCtx, msgEthereumTx)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "failed to forward transaction")
 	}
+
+	// TODO move refunds to owner account
+
 	return &types.MsgSubmitTxResponse{}, nil
 }
 
@@ -226,4 +289,43 @@ func (k Keeper) signEthereumTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtyp
 		return nil, err
 	}
 	return msgEthereumTx, nil
+}
+
+func (k Keeper) performEthTx(msgEthereumTx *evmtypes.MsgEthereumTx) (*abci.ResponseDeliverTx, error) {
+	encodingConfig := encoding.MakeConfig(k.moduleBasics)
+	option, err := codectypes.NewAnyWithValue(&evmtypes.ExtensionOptionsEthereumTx{})
+	if err != nil {
+		return nil, err
+	}
+
+	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+	builder, ok := txBuilder.(authtx.ExtensionOptionsTxBuilder)
+	if !ok {
+		return nil, sdkerrors.Wrapf(err, "failed to encode tx in intertx-performEthTx")
+	}
+	builder.SetExtensionOptions(option)
+
+	err = txBuilder.SetMsgs(msgEthereumTx)
+	if err != nil {
+		return nil, err
+	}
+
+	txData, err := evmtypes.UnpackTxData(msgEthereumTx.Data)
+	if err != nil {
+		return nil, err
+	}
+
+	fees := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewIntFromBigInt(txData.Fee())))
+	builder.SetFeeAmount(fees)
+	builder.SetGasLimit(msgEthereumTx.GetGas())
+
+	// bz are bytes to be broadcasted over the network
+	bz, err := encodingConfig.TxConfig.TxEncoder()(txBuilder.GetTx())
+	if err != nil {
+		return nil, err
+	}
+
+	req := abci.RequestDeliverTx{Tx: bz}
+	res := k.deliverTx(req)
+	return &res, nil
 }

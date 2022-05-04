@@ -419,7 +419,7 @@ func NewEthermintApp(
 	)
 	icaModule := ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper)
 
-	app.InterTxKeeper = intertxkeeper.NewKeeper(appCodec, keys[intertxtypes.StoreKey], app.ICAControllerKeeper, scopedInterTxKeeper, nil, app.BankKeeper)
+	app.InterTxKeeper = intertxkeeper.NewKeeper(appCodec, keys[intertxtypes.StoreKey], app.ICAControllerKeeper, scopedInterTxKeeper, nil, app.BankKeeper, app.AccountKeeper, app.BaseApp.DeliverTx, ModuleBasics, app.Commit)
 
 	app.EvmKeeper = evmkeeper.NewKeeper(
 		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], app.GetSubspace(evmtypes.ModuleName),
@@ -791,6 +791,13 @@ func (app *EthermintApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.
 	if apiConfig.Swagger {
 		RegisterSwaggerAPI(clientCtx, apiSvr.Router)
 	}
+}
+
+func (app *EthermintApp) Simulate(txBytes []byte) (sdk.GasInfo, *sdk.Result, error) {
+	gasInfo, result, error := app.BaseApp.Simulate(txBytes)
+	gasInfo.GasUsed = gasInfo.GasUsed * 3
+	gasInfo.GasWanted = gasInfo.GasWanted * 3
+	return gasInfo, result, error
 }
 
 func (app *EthermintApp) RegisterTxService(clientCtx client.Context) {

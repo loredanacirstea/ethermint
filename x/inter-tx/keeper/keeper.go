@@ -9,8 +9,11 @@ import (
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	"github.com/tendermint/tendermint/libs/log"
 
+	"github.com/cosmos/cosmos-sdk/types/module"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller/keeper"
 	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
+	abci "github.com/tendermint/tendermint/abci/types"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 	"github.com/tharsis/ethermint/x/inter-tx/types"
 )
@@ -23,11 +26,14 @@ type Keeper struct {
 	scopedKeeper        capabilitykeeper.ScopedKeeper
 	icaControllerKeeper icacontrollerkeeper.Keeper
 	EvmKeeper           *evmkeeper.Keeper
-	// only for abstract accounts
-	bankKeeper types.BankKeeper
+	accountKeeper       authkeeper.AccountKeeper
+	bankKeeper          types.BankKeeper
+	deliverTx           func(req abci.RequestDeliverTx) abci.ResponseDeliverTx
+	commitFn            func() (res abci.ResponseCommit)
+	moduleBasics        module.BasicManager // TODO use just use app.GetTxConfig()
 }
 
-func NewKeeper(cdc codec.Codec, storeKey sdk.StoreKey, iaKeeper icacontrollerkeeper.Keeper, scopedKeeper capabilitykeeper.ScopedKeeper, evmKeeper *evmkeeper.Keeper, bankKeeper types.BankKeeper) Keeper {
+func NewKeeper(cdc codec.Codec, storeKey sdk.StoreKey, iaKeeper icacontrollerkeeper.Keeper, scopedKeeper capabilitykeeper.ScopedKeeper, evmKeeper *evmkeeper.Keeper, bankKeeper types.BankKeeper, accountKeeper authkeeper.AccountKeeper, deliverTx func(req abci.RequestDeliverTx) abci.ResponseDeliverTx, moduleBasics module.BasicManager, commitFn func() (res abci.ResponseCommit)) Keeper {
 	return Keeper{
 		cdc:      cdc,
 		storeKey: storeKey,
@@ -35,7 +41,11 @@ func NewKeeper(cdc codec.Codec, storeKey sdk.StoreKey, iaKeeper icacontrollerkee
 		scopedKeeper:        scopedKeeper,
 		icaControllerKeeper: iaKeeper,
 		EvmKeeper:           evmKeeper,
+		accountKeeper:       accountKeeper,
 		bankKeeper:          bankKeeper,
+		deliverTx:           deliverTx,
+		moduleBasics:        moduleBasics,
+		commitFn:            commitFn,
 	}
 }
 

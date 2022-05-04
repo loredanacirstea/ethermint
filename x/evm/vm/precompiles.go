@@ -38,7 +38,7 @@ func (c *ICAPrecompile) Run(evm *vm.EVM, caller vm.ContractRef, input []byte) ([
 	var err error
 
 	switch signature {
-	case "8937a3a7": // emitTx(bytes32,bool,bytes)
+	case "8fca7148": // emitTx(address,uint256,uint256,bytes,address,uint256)
 		result, err = emitTx(evm, c, caller, callInput)
 	case "415a2bc1": // getResponse(bytes32)
 		result, err = getTxResponse(c, caller, callInput)
@@ -61,26 +61,27 @@ func (c *ICAPrecompile) Run(evm *vm.EVM, caller vm.ContractRef, input []byte) ([
 	}
 
 	fmt.Println("--ICAPrecompile result--", encodedResult)
-	return encodedResult, err
+	return encodedResult, nil
 }
 
 func emitTx(evm *vm.EVM, c *ICAPrecompile, caller vm.ContractRef, input []byte) ([]byte, error) {
-	fmt.Println("----emitTx---caller-", caller.Address().Hash())
-	fmt.Println("----emitTx----", input)
-	owner := sdk.AccAddress(caller.Address().Bytes())
-	fmt.Println("----emitTx-owner---", owner, owner.String())
+	connectionId := "connection-0"
+	to := common.BytesToAddress(input[0:32])
+	value := new(big.Int).SetBytes(input[32:64])
+	gasLimit := new(big.Int).SetBytes(input[64:96]).Uint64()
 
-	nonce := uint64(0)
-	value := big.NewInt(0)
-	to := common.BytesToAddress(caller.Address().Bytes())
-	gasLimit := uint64(300000)
+	offsetInput := new(big.Int).SetBytes(input[96:128]).Uint64()
+	calldataLength := new(big.Int).SetBytes(input[offsetInput : offsetInput+32]).Uint64()
+	data := input[offsetInput+32 : offsetInput+32+calldataLength]
+	owner := common.BytesToAddress(input[128:160])
+	nonce := new(big.Int).SetBytes(input[160:192]).Uint64()
 	gasPrice := big.NewInt(20)
 	gasFeeCap := big.NewInt(20)
 	gasTipCap := big.NewInt(20)
-	data := make([]byte, 0)
+
 	accesses := &ethtypes.AccessList{}
 	ethtx := types.NewTx(evm.ChainConfig().ChainID, nonce, &to, value, gasLimit, gasPrice, gasFeeCap, gasTipCap, data, accesses)
-	msg, err := intertxtypes.NewMsgSubmitEthereumTx(ethtx, "connection-0", caller.Address().Hex())
+	msg, err := intertxtypes.NewMsgSubmitEthereumTx(ethtx, connectionId, owner.Hex())
 	if err != nil {
 		return nil, err
 	}
