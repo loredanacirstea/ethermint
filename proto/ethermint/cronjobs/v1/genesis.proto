@@ -1,0 +1,25 @@
+syntax = "proto3";
+package evmos.cronjobs.v1;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "evmos/cronjobs/v1/cronjob.proto";
+
+option go_package = "github.com/tharsis/evmos/v4/x/cronjobs/types";
+
+// GenesisState define the claims module's genesis state.
+message GenesisState {
+	// params defines all the parameters of the module.
+	Params params = 1 [ (gogoproto.nullable) = false ];
+	// list of claim records with the corresponding airdrop recipient
+	repeated Cronjob cronjobs = 2 [
+		(gogoproto.nullable) = false
+	];
+}
+
+// Params defines the claims module's parameters.
+message Params {
+	// enable cronjobs
+	bool enable_cronjobs = 1;
+}

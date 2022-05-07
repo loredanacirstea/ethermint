@@ -108,6 +108,9 @@ import (
 	"github.com/tharsis/ethermint/app/ante"
 	srvflags "github.com/tharsis/ethermint/server/flags"
 	ethermint "github.com/tharsis/ethermint/types"
+	"github.com/tharsis/ethermint/x/epochs"
+	epochskeeper "github.com/tharsis/ethermint/x/epochs/keeper"
+	epochstypes "github.com/tharsis/ethermint/x/epochs/types"
 	"github.com/tharsis/ethermint/x/evm"
 	evmrest "github.com/tharsis/ethermint/x/evm/client/rest"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
@@ -118,6 +121,10 @@ import (
 	intertx "github.com/tharsis/ethermint/x/inter-tx"
 	intertxkeeper "github.com/tharsis/ethermint/x/inter-tx/keeper"
 	intertxtypes "github.com/tharsis/ethermint/x/inter-tx/types"
+
+	cronjobs "github.com/tharsis/ethermint/x/cronjobs"
+	cronjobskeeper "github.com/tharsis/ethermint/x/cronjobs/keeper"
+	cronjobstypes "github.com/tharsis/ethermint/x/cronjobs/types"
 
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
 	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
@@ -168,7 +175,9 @@ var (
 		// Ethermint modules
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
+		epochs.AppModuleBasic{},
 		intertx.AppModuleBasic{},
+		cronjobs.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -243,6 +252,8 @@ type EthermintApp struct {
 	EvmKeeper       *evmkeeper.Keeper
 	FeeMarketKeeper feemarketkeeper.Keeper
 	InterTxKeeper   intertxkeeper.Keeper
+	EpochsKeeper    epochskeeper.Keeper
+	CronjobsKeeper  cronjobskeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -296,6 +307,8 @@ func NewEthermintApp(
 		// ethermint keys
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 		intertxtypes.StoreKey,
+		epochstypes.StoreKey,
+		cronjobstypes.StoreKey,
 	)
 
 	// Add the EVM transient store key
@@ -419,15 +432,24 @@ func NewEthermintApp(
 	)
 	icaModule := ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper)
 
-	app.InterTxKeeper = intertxkeeper.NewKeeper(appCodec, keys[intertxtypes.StoreKey], app.ICAControllerKeeper, scopedInterTxKeeper, nil, app.BankKeeper, app.AccountKeeper, app.BaseApp.DeliverTx, ModuleBasics, app.Commit)
+	app.InterTxKeeper = intertxkeeper.NewKeeper(appCodec, keys[intertxtypes.StoreKey], app.ICAControllerKeeper, scopedInterTxKeeper, nil, app.BankKeeper, app.AccountKeeper, authtypes.FeeCollectorName,
+		app.BaseApp.DeliverTx, ModuleBasics, app.Commit)
+
+	app.CronjobsKeeper = cronjobskeeper.NewKeeper(keys[cronjobstypes.StoreKey], appCodec, app.GetSubspace(cronjobstypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, nil,
+		app.InterTxKeeper,
+		authtypes.FeeCollectorName,
+	)
 
 	app.EvmKeeper = evmkeeper.NewKeeper(
 		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], app.GetSubspace(evmtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.FeeMarketKeeper,
-		&app.InterTxKeeper,
+		&app.InterTxKeeper, app.CronjobsKeeper,
 		tracer,
 	)
 	app.InterTxKeeper.EvmKeeper = app.EvmKeeper
+	app.CronjobsKeeper.EvmKeeper = app.EvmKeeper
+	app.CronjobsKeeper.AbstractAccountKeeper = app.InterTxKeeper
 
 	interTxModule := intertx.NewAppModule(appCodec, app.InterTxKeeper)
 
@@ -453,6 +475,14 @@ func NewEthermintApp(
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
+
+	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])
+	app.EpochsKeeper = *epochsKeeper.SetHooks(
+		epochskeeper.NewMultiEpochHooks(
+			// insert epoch hooks receivers here
+			app.CronjobsKeeper.Hooks(),
+		),
+	)
 
 	/****  Module Options ****/
 
@@ -492,6 +522,8 @@ func NewEthermintApp(
 		feemarket.NewAppModule(app.FeeMarketKeeper),
 		icaModule,
 		interTxModule,
+		epochs.NewAppModule(appCodec, app.EpochsKeeper),
+		cronjobs.NewAppModule(app.CronjobsKeeper, app.AccountKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -503,6 +535,8 @@ func NewEthermintApp(
 	app.mm.SetOrderBeginBlockers(
 		upgradetypes.ModuleName,
 		capabilitytypes.ModuleName,
+		// Note: epochs' begin should be "real" start of epochs, we keep epochs beginblock at the beginning
+		epochstypes.ModuleName,
 		feemarkettypes.ModuleName,
 		evmtypes.ModuleName,
 		minttypes.ModuleName,
@@ -524,6 +558,7 @@ func NewEthermintApp(
 		vestingtypes.ModuleName,
 		icatypes.ModuleName,
 		intertxtypes.ModuleName,
+		cronjobstypes.ModuleName,
 	)
 
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
@@ -533,6 +568,8 @@ func NewEthermintApp(
 		stakingtypes.ModuleName,
 		evmtypes.ModuleName,
 		feemarkettypes.ModuleName,
+		// Note: epochs' endblock should be "real" end of epochs, we keep epochs endblock at the end
+		epochstypes.ModuleName,
 		// no-op modules
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
@@ -551,6 +588,7 @@ func NewEthermintApp(
 		vestingtypes.ModuleName,
 		icatypes.ModuleName,
 		intertxtypes.ModuleName,
+		cronjobstypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -582,6 +620,8 @@ func NewEthermintApp(
 		evmtypes.ModuleName,
 		feemarkettypes.ModuleName,
 		intertxtypes.ModuleName,
+		epochstypes.ModuleName,
+		cronjobstypes.ModuleName,
 
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
@@ -880,6 +920,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(evmtypes.ModuleName)
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
 	paramsKeeper.Subspace(intertxtypes.ModuleName)
+	paramsKeeper.Subspace(cronjobstypes.ModuleName)
 
 	return paramsKeeper
 }

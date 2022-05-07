@@ -1,0 +1,65 @@
+syntax = "proto3";
+package evmos.cronjobs.v1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "evmos/cronjobs/v1/cronjob.proto";
+import "evmos/cronjobs/v1/genesis.proto";
+
+option go_package = "github.com/tharsis/evmos/v4/x/cronjobs/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Cronjobs queries the cronjobs by epoch identifier
+  rpc Cronjobs(QueryCronjobsRequest) returns (QueryCronjobsResponse) {
+    option (google.api.http).get = "/evmos/cronjobs/v1/{epoch_identifier}";
+  }
+  // Cronjob queries the cronjobs by epoch identifier
+   rpc Cronjob(QueryCronjobRequest) returns (QueryCronjobResponse) {
+    option (google.api.http).get = "/evmos/cronjobs/v1/{identifier}";
+  }
+  // Params returns the claims module parameters
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/evmos/cronjobs/v1/params";
+  }
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params defines the parameters of the module.
+  Params params = 1 [ (gogoproto.nullable) = false ];
+}
+
+// QueryCronjobsRequest is the request type for the Query/Cronjobs
+// RPC method.
+message QueryCronjobsRequest {
+    // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+  string epoch_identifier = 2;
+}
+
+// QueryCronjobsResponse is the response type for the Query/Cronjobs
+// RPC method.
+message QueryCronjobsResponse {
+  // cronjob
+  repeated Cronjob cronjobs = 1 [ (gogoproto.nullable) = false ];
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryCronjobRequest is the request type for the Query/Cronjob
+// RPC method.
+message QueryCronjobRequest {
+  string identifier = 1;
+}
+
+// QueryCronjobsResponse is the response type for the Query/Cronjobs
+// RPC method.
+message QueryCronjobResponse {
+  // cronjob
+  Cronjob cronjob = 1 [ (gogoproto.nullable) = false ];
+}

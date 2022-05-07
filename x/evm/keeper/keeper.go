@@ -45,6 +45,7 @@ type Keeper struct {
 	// fetch EIP1559 base fee and parameters
 	feeMarketKeeper types.FeeMarketKeeper
 	intertxKeeper   types.InterTxKeeper
+	cronjobsKeeper  types.CronjobsKeeper
 
 	// chain ID number obtained from the context's chain id
 	eip155ChainID *big.Int
@@ -63,6 +64,7 @@ func NewKeeper(
 	ak types.AccountKeeper, bankKeeper types.BankKeeper, sk types.StakingKeeper,
 	fmk types.FeeMarketKeeper,
 	intertx types.InterTxKeeper,
+	cronjobsKeeper types.CronjobsKeeper,
 	tracer string,
 ) *Keeper {
 	// ensure evm module account is set
@@ -84,6 +86,7 @@ func NewKeeper(
 		stakingKeeper:   sk,
 		feeMarketKeeper: fmk,
 		intertxKeeper:   intertx,
+		cronjobsKeeper:  cronjobsKeeper,
 		storeKey:        storeKey,
 		transientKey:    transientKey,
 		tracer:          tracer,

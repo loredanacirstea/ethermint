@@ -51,6 +51,13 @@ func (k Keeper) RegisterAccount(goCtx context.Context, msg *types.MsgRegisterAcc
 // RegisterAccount implements the Msg/RegisterAbstractAccount interface
 func (k Keeper) RegisterAbstractAccount(goCtx context.Context, msg *types.MsgRegisterAbstractAccount) (*types.MsgRegisterAccountResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	_, found := k.GetAbstractAccount(ctx, msg.Owner)
+	if found {
+		// return found
+		return &types.MsgRegisterAccountResponse{}, nil
+	}
+
 	account, err := k.GenerateAbstractAccount(ctx)
 	if err != nil {
 		return nil, err
@@ -261,14 +268,14 @@ func (k Keeper) ForwardEthereumTx(goCtx context.Context, msg *types.MsgForwardEt
 	}
 
 	coins := sdk.Coins{{Denom: k.EvmKeeper.GetParams(ctx).EvmDenom, Amount: sdk.NewIntFromBigInt(cost)}}
-	err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, owner, types.ModuleName, coins)
+	err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, owner, k.feeCollector, coins)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "failed to send transaction fees from owner %s to module %s", address.Hex(), types.ModuleName)
 	}
-	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sdk.AccAddress(address.Bytes()), coins)
-	if err != nil {
-		return nil, sdkerrors.Wrapf(err, "failed to send transaction fees from module %s to address %s", types.ModuleName, address.Hex())
-	}
+	// err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, k.feeCollector, sdk.AccAddress(address.Bytes()), coins)
+	// if err != nil {
+	// 	return nil, sdkerrors.Wrapf(err, "failed to send transaction fees from module %s to address %s", types.ModuleName, address.Hex())
+	// }
 
 	// TODO deliverTx
 	_, err = k.EvmKeeper.EthereumTx(goCtx, msgEthereumTx)
@@ -282,7 +289,8 @@ func (k Keeper) ForwardEthereumTx(goCtx context.Context, msg *types.MsgForwardEt
 }
 
 func (k Keeper) signEthereumTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereumTx) (*evmtypes.MsgEthereumTx, error) {
-	ethSigner := ethtypes.LatestSignerForChainID(k.EvmKeeper.ChainID())
+	chainId := k.EvmKeeper.ChainID()
+	ethSigner := ethtypes.LatestSignerForChainID(chainId)
 	keyringSigner := tests.NewSigner(priv)
 	err := msgEthereumTx.Sign(ethSigner, keyringSigner)
 	if err != nil {

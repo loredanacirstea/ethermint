@@ -28,12 +28,13 @@ type Keeper struct {
 	EvmKeeper           *evmkeeper.Keeper
 	accountKeeper       authkeeper.AccountKeeper
 	bankKeeper          types.BankKeeper
+	feeCollector        string
 	deliverTx           func(req abci.RequestDeliverTx) abci.ResponseDeliverTx
 	commitFn            func() (res abci.ResponseCommit)
 	moduleBasics        module.BasicManager // TODO use just use app.GetTxConfig()
 }
 
-func NewKeeper(cdc codec.Codec, storeKey sdk.StoreKey, iaKeeper icacontrollerkeeper.Keeper, scopedKeeper capabilitykeeper.ScopedKeeper, evmKeeper *evmkeeper.Keeper, bankKeeper types.BankKeeper, accountKeeper authkeeper.AccountKeeper, deliverTx func(req abci.RequestDeliverTx) abci.ResponseDeliverTx, moduleBasics module.BasicManager, commitFn func() (res abci.ResponseCommit)) Keeper {
+func NewKeeper(cdc codec.Codec, storeKey sdk.StoreKey, iaKeeper icacontrollerkeeper.Keeper, scopedKeeper capabilitykeeper.ScopedKeeper, evmKeeper *evmkeeper.Keeper, bankKeeper types.BankKeeper, accountKeeper authkeeper.AccountKeeper, feeCollector string, deliverTx func(req abci.RequestDeliverTx) abci.ResponseDeliverTx, moduleBasics module.BasicManager, commitFn func() (res abci.ResponseCommit)) Keeper {
 	return Keeper{
 		cdc:      cdc,
 		storeKey: storeKey,
@@ -43,6 +44,7 @@ func NewKeeper(cdc codec.Codec, storeKey sdk.StoreKey, iaKeeper icacontrollerkee
 		EvmKeeper:           evmKeeper,
 		accountKeeper:       accountKeeper,
 		bankKeeper:          bankKeeper,
+		feeCollector:        feeCollector,
 		deliverTx:           deliverTx,
 		moduleBasics:        moduleBasics,
 		commitFn:            commitFn,

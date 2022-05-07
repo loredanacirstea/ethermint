@@ -1,0 +1,40 @@
+syntax = "proto3";
+package evmos.cronjobs.v1;
+
+import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+import "evmos/cronjobs/v1/cronjob.proto";
+
+option go_package = "github.com/tharsis/evmos/v4/x/cronjobs/types";
+
+// Msg defines the erc20 Msg service.
+service Msg {
+  // RegisterCronjob
+  rpc RegisterCronjob(MsgRegisterCronjob) returns (MsgRegisterCronjobResponse) {
+    option (google.api.http).get = "/evmos/cronjobs/v1/tx/register_cronjob";
+  };
+  // CancelCronjob
+  rpc CancelCronjob(MsgCancelCronjob) returns (MsgCancelCronjobResponse) {
+    option (google.api.http).get = "/evmos/cronjobs/v1/tx/cancel_cronjob";
+  };
+}
+
+// RegisterCronjob
+message MsgRegisterCronjob {
+  // Cronjob
+  Cronjob cronjob = 1 [ (gogoproto.nullable) = false ];
+  // EOA/contract hex address
+  string sender = 2;
+}
+
+// MsgConvertCoinResponse returns no fields
+message MsgRegisterCronjobResponse {}
+
+// MsgCancelCronjob
+message MsgCancelCronjob {
+  string identifier = 1;
+  string sender = 2;
+}
+
+// MsgConvertCoinResponse returns no fields
+message MsgCancelCronjobResponse {}

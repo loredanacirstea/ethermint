@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
+	cronjobstypes "github.com/tharsis/ethermint/x/cronjobs/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 	intertxtypes "github.com/tharsis/ethermint/x/inter-tx/types"
 )
@@ -68,4 +69,9 @@ type InterTxKeeper interface {
 type EvmHooks interface {
 	// Must be called after tx is processed successfully, if return an error, the whole transaction is reverted.
 	PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error
+}
+
+type CronjobsKeeper interface {
+	RegisterCronjob(goCtx context.Context, msg *cronjobstypes.MsgRegisterCronjob) (*cronjobstypes.MsgRegisterCronjobResponse, error)
+	CancelCronjob(goCtx context.Context, msg *cronjobstypes.MsgCancelCronjob) (*cronjobstypes.MsgCancelCronjobResponse, error)
 }
