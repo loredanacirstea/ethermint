@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"math/big"
+	"testing"
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/tharsis/ethermint/rpc/ethereum/types"
-	"math/big"
-	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
@@ -405,6 +406,7 @@ func (s *IntegrationTestSuite) TestGetLogs() {
 	}
 
 	s.Require().Equal(expectedTopics, logs[0].Topics)
+	s.Require().True(false)
 }
 
 func (s *IntegrationTestSuite) TestTransactionReceiptERC20Transfer() {
@@ -458,6 +460,73 @@ func (s *IntegrationTestSuite) TestGetStorageAt() {
 	s.Require().NoError(err)
 	s.Require().NotNil(storage)
 	s.Require().True(bytes.Equal(expectedStore, storage))
+}
+
+func (s *IntegrationTestSuite) TestEventualTx() {
+	fmt.Println("-------------TestEventualTx------")
+	// TODO create tests to cover different filterQuery params
+	data := common.Hex2Bytes("0x608060405234801561001057600080fd5b50610420806100206000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c80633a2c615714610030575b600080fd5b61004a6004803603810190610045919061013e565b61004c565b005b8373ffffffffffffffffffffffffffffffffffffffff167fc87c5b688cdecc4e40f06a394de49a3215bd4a1a1256113bbe0426f9b80d563e84848460405161009693929190610209565b60405180910390a250505050565b60006100b76100b28461026c565b610247565b9050828152602081018484840111156100d3576100d261039c565b5b6100de8482856102f5565b509392505050565b6000813590506100f5816103bc565b92915050565b600082601f8301126101105761010f610397565b5b81356101208482602086016100a4565b91505092915050565b600081359050610138816103d3565b92915050565b60008060008060808587031215610158576101576103a6565b5b6000610166878288016100e6565b945050602061017787828801610129565b935050604061018887828801610129565b925050606085013567ffffffffffffffff8111156101a9576101a86103a1565b5b6101b5878288016100fb565b91505092959194509250565b60006101cc8261029d565b6101d681856102a8565b93506101e6818560208601610304565b6101ef816103ab565b840191505092915050565b610203816102eb565b82525050565b600060608201905061021e60008301866101fa565b61022b60208301856101fa565b818103604083015261023d81846101c1565b9050949350505050565b6000610251610262565b905061025d8282610337565b919050565b6000604051905090565b600067ffffffffffffffff82111561028757610286610368565b5b610290826103ab565b9050602081019050919050565b600081519050919050565b600082825260208201905092915050565b60006102c4826102cb565b9050919050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b6000819050919050565b82818337600083830152505050565b60005b83811015610322578082015181840152602081019050610307565b83811115610331576000848401525b50505050565b610340826103ab565b810181811067ffffffffffffffff8211171561035f5761035e610368565b5b80604052505050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b600080fd5b600080fd5b600080fd5b600080fd5b6000601f19601f8301169050919050565b6103c5816102b9565b81146103d057600080fd5b50565b6103dc816102eb565b81146103e757600080fd5b5056fea2646970667358221220a18fb3432a19676462a024c3de5cf11b090042d14e4b8343989ef37fb2c0085664736f6c63430008070033")
+	_, contractAddr := s.deployContract(data)
+
+	blockNum, err := s.network.Validators[0].JSONRPCClient.BlockNumber(s.ctx)
+	s.Require().NoError(err)
+
+	fmt.Println("---------**********------")
+	s.eventualTx(contractAddr)
+	filterQuery := ethereum.FilterQuery{
+		FromBlock: big.NewInt(int64(blockNum)),
+	}
+	fmt.Println("---------**********done------")
+
+	logs, err := s.network.Validators[0].JSONRPCClient.FilterLogs(s.ctx, filterQuery)
+	s.Require().NoError(err)
+	s.Require().NotNil(logs)
+	s.Require().Equal(1, len(logs))
+
+	expectedTopics := []common.Hash{
+		common.HexToHash("0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"),
+		common.HexToHash("0x000000000000000000000000" + fmt.Sprintf("%x", common.BytesToAddress(s.network.Validators[0].Address))),
+		common.HexToHash("0x000000000000000000000000378c50d9264c63f3f92b806d4ee56e9d86ffb3ec"),
+	}
+
+	s.Require().Equal(expectedTopics, logs[0].Topics)
+	s.Require().True(false)
+}
+
+func (s *IntegrationTestSuite) eventualTx(contractAddr common.Address) common.Hash {
+	chainID, err := s.network.Validators[0].JSONRPCClient.ChainID(s.ctx)
+	s.Require().NoError(err)
+
+	data := common.Hex2Bytes("0x3a2c6157000000000000000000000000d8b934580fce35a11b58c6d73adee468a2833fa800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030d400000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000002460fe47b1000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000")
+
+	owner := common.BytesToAddress(s.network.Validators[0].Address)
+	nonce := s.getAccountNonce(owner)
+	gas := uint64(200000)
+	gasPrice := s.getGasPrice()
+	ercTransferTx := evmtypes.NewTx(
+		chainID,
+		nonce,
+		&contractAddr,
+		nil,
+		gas,
+		gasPrice,
+		nil, nil,
+		data,
+		nil,
+	)
+
+	ercTransferTx.From = owner.Hex()
+	err = ercTransferTx.Sign(s.ethSigner, s.network.Validators[0].ClientCtx.Keyring)
+	s.Require().NoError(err)
+	err = s.network.Validators[0].JSONRPCClient.SendTransaction(s.ctx, ercTransferTx.AsTransaction())
+	s.Require().NoError(err)
+
+	s.waitForTransaction()
+
+	receipt := s.expectSuccessReceipt(ercTransferTx.AsTransaction().Hash())
+	s.Require().NotEmpty(receipt.Logs)
+	return ercTransferTx.AsTransaction().Hash()
+
 }
 
 func (s *IntegrationTestSuite) getGasPrice() *big.Int {

@@ -87,9 +87,9 @@ ifeq (boltdb,$(findstring boltdb,$(COSMOS_BUILD_OPTIONS)))
   ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=boltdb
 endif
 
-ifeq (,$(findstring nostrip,$(COSMOS_BUILD_OPTIONS)))
-  ldflags += -w -s
-endif
+# ifeq (,$(findstring nostrip,$(COSMOS_BUILD_OPTIONS)))
+#   ldflags += -w -s
+# endif
 ldflags += $(LDFLAGS)
 ldflags := $(strip $(ldflags))
 

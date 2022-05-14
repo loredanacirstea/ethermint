@@ -3,6 +3,7 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
@@ -32,6 +33,7 @@ type Keeper struct {
 	deliverTx           func(req abci.RequestDeliverTx) abci.ResponseDeliverTx
 	commitFn            func() (res abci.ResponseCommit)
 	moduleBasics        module.BasicManager // TODO use just use app.GetTxConfig()
+	ClientCtx           *client.Context
 }
 
 func NewKeeper(cdc codec.Codec, storeKey sdk.StoreKey, iaKeeper icacontrollerkeeper.Keeper, scopedKeeper capabilitykeeper.ScopedKeeper, evmKeeper *evmkeeper.Keeper, bankKeeper types.BankKeeper, accountKeeper authkeeper.AccountKeeper, feeCollector string, deliverTx func(req abci.RequestDeliverTx) abci.ResponseDeliverTx, moduleBasics module.BasicManager, commitFn func() (res abci.ResponseCommit)) Keeper {

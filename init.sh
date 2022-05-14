@@ -1,5 +1,7 @@
 #!/bin/bash
-
+RELAYER="evmos1jmghmexanv84dj826gp24l7nfhm2zmrd8987cq"
+LOCALKEY="evmos1fjx8p8uzx3h5qszqnwvelulzd659j8uafwws7e"
+LOCALKEY2="evmos1f3d3t8y604x9ev4dfgf4hx270gdcrfal2m0hr3"
 KEY="mykey"
 CHAINID="ethermint_9000-1"
 MONIKER="localtestnet"
@@ -7,8 +9,8 @@ KEYRING="test"
 KEYALGO="eth_secp256k1"
 LOGLEVEL="info"
 # to trace evm
-TRACE="--trace"
-# TRACE=""
+# TRACE="--trace"
+TRACE=""
 
 # validate dependencies are installed
 command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"; exit 1; }
@@ -22,7 +24,12 @@ ethermintd config keyring-backend $KEYRING
 ethermintd config chain-id $CHAINID
 
 # if $KEY exists it should be deleted
-ethermintd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO
+# ethermintd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO
+ethermintd keys add $KEY --recover --keyring-backend $KEYRING --algo $KEYALGO
+
+ethermintd add-genesis-account $RELAYER 100000000000000000000000000000000aevmos,200000000stake --keyring-backend $KEYRING
+ethermintd add-genesis-account $LOCALKEY 100000000000000000000000000000000aevmos --keyring-backend $KEYRING
+ethermintd add-genesis-account $LOCALKEY2 100000000000000000000000000000000aevmos,200000000stake --keyring-backend $KEYRING
 
 # Set moniker and chain-id for Ethermint (Moniker can be anything, chain-id must be an integer)
 ethermintd init $MONIKER --chain-id $CHAINID
@@ -87,4 +94,5 @@ if [[ $1 == "pending" ]]; then
 fi
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-ethermintd start --pruning=nothing --evm.tracer=json $TRACE --log_level $LOGLEVEL --minimum-gas-prices=0.0001aphoton --json-rpc.api eth,txpool,personal,net,debug,web3,miner --api.enable
+# --evm.tracer=json
+ethermintd start --pruning=nothing $TRACE --log_level $LOGLEVEL --minimum-gas-prices=0.0001aphoton --json-rpc.api eth,txpool,personal,net,debug,web3,miner --api.enable --grpc-web.address 192.168.0.102:9091 --json-rpc.address 192.168.0.102:8545 --json-rpc.ws-address 192.168.0.102:8546 --rpc.laddr tcp://192.168.0.102:26657

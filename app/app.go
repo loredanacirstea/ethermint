@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -263,6 +264,7 @@ type EthermintApp struct {
 
 	// the configurator
 	configurator module.Configurator
+	clientCtx    *client.Context
 }
 
 // NewEthermintApp returns a reference to a new initialized Ethermint application.
@@ -483,6 +485,12 @@ func NewEthermintApp(
 			app.CronjobsKeeper.Hooks(),
 		),
 	)
+
+	// app.EvmKeeper = app.EvmKeeper.SetHooks(
+	// 	evmkeeper.NewMultiEvmHooks(
+	// 		app.InterTxKeeper.Hooks(),
+	// 	),
+	// )
 
 	/****  Module Options ****/
 
@@ -814,6 +822,14 @@ func (app *EthermintApp) SimulationManager() *module.SimulationManager {
 // API server.
 func (app *EthermintApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
+	app.clientCtx = &clientCtx
+	app.InterTxKeeper.ClientCtx = &clientCtx
+	app.EvmKeeper = app.EvmKeeper.SetHooks(
+		evmkeeper.NewMultiEvmHooks(
+			app.InterTxKeeper.Hooks(),
+		),
+	)
+	fmt.Println("---RegisterAPIRoutes---", app.InterTxKeeper.ClientCtx)
 	rpc.RegisterRoutes(clientCtx, apiSvr.Router)
 
 	evmrest.RegisterTxRoutes(clientCtx, apiSvr.Router)

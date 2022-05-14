@@ -235,6 +235,7 @@ func (k Keeper) UnwrapEthereumTx(goCtx context.Context, msg *types.MsgWrappedEth
 // the contract's abstract account and sent to the EVM module
 func (k Keeper) ForwardEthereumTx(goCtx context.Context, msg *types.MsgForwardEthereumTx) (*types.MsgSubmitTxResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	// fmt.Println("--ForwardEthereumTx...--")
 	msgEthereumTx := msg.GetTxMsg().(*evmtypes.MsgEthereumTx)
 	owner := sdk.AccAddress(common.HexToAddress(msg.Owner).Bytes())
 	account, found := k.GetAbstractAccount(ctx, msg.Owner)
@@ -267,23 +268,54 @@ func (k Keeper) ForwardEthereumTx(goCtx context.Context, msg *types.MsgForwardEt
 		cost = big.NewInt(int64(msgEthereumTx.GetGas() * msgEthereumTx.GetFee().Uint64()))
 	}
 
-	coins := sdk.Coins{{Denom: k.EvmKeeper.GetParams(ctx).EvmDenom, Amount: sdk.NewIntFromBigInt(cost)}}
+	evmDenom := k.EvmKeeper.GetParams(ctx).EvmDenom
+	coins := sdk.Coins{{Denom: evmDenom, Amount: sdk.NewIntFromBigInt(cost)}}
 	err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, owner, k.feeCollector, coins)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "failed to send transaction fees from owner %s to module %s", address.Hex(), types.ModuleName)
 	}
-	// err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, k.feeCollector, sdk.AccAddress(address.Bytes()), coins)
-	// if err != nil {
-	// 	return nil, sdkerrors.Wrapf(err, "failed to send transaction fees from module %s to address %s", types.ModuleName, address.Hex())
-	// }
+	// TODO f we broadcast, check how much fee remained in the abstract account from prior refunds and just top up with the rest of the fee
+	// fmt.Println("0000", owner, coins)
 
-	// TODO deliverTx
 	_, err = k.EvmKeeper.EthereumTx(goCtx, msgEthereumTx)
+	// fmt.Println("----intertx forwarded res", res, err)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "failed to forward transaction")
 	}
 
-	// TODO move refunds to owner account
+	// // add to mempool and broadcast tx
+	// // BroadcastSync waits until the tx passes CheckTx and is broadcasted
+	// // we don't know if the if the tx will succeed or not
+	// // TODO use BroadcastAsync if we don't need to know this tx passed CheckTxs
+	// // or we see that the execution waiting time is too long
+	// syncCtx := k.ClientCtx.WithBroadcastMode(flags.BroadcastAsync)
+	// cosmosTx, err := msgEthereumTx.BuildTx(k.ClientCtx.TxConfig.NewTxBuilder(), evmDenom)
+	// if err != nil {
+	// 	k.Logger(ctx).Error("failed to build cosmos tx", "error", err.Error())
+	// 	// return common.Hash{}, err
+	// 	return nil, err
+	// }
+
+	// // Encode transaction by default Tx encoder
+	// txBytes, err := k.ClientCtx.TxConfig.TxEncoder()(cosmosTx)
+	// fmt.Println("--txBytes--", txBytes, err)
+	// if err != nil {
+	// 	k.Logger(ctx).Error("failed to encode eth tx using default encoder", "error", err.Error())
+	// 	// return common.Hash{}, err
+	// 	return nil, err
+	// }
+
+	// res, err := syncCtx.BroadcastTx(txBytes)
+	// if res != nil && res.Code != 0 {
+	// 	err = sdkerrors.ABCIError(res.Codespace, res.Code, res.RawLog)
+	// }
+	// if err != nil {
+	// 	k.Logger(ctx).Error("failed to broadcast tx", "error", err.Error())
+	// 	// return txHash, err
+	// 	return nil, err
+	// }
+
+	// return txHash, nil
 
 	return &types.MsgSubmitTxResponse{}, nil
 }
